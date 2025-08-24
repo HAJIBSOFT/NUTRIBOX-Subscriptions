@@ -3,130 +3,278 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم</title>
+    <title>لوحة التحكم | HAJIB SOFT</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #d87525;
-            --primary-color-dark: #b85e1a;
-            --text-color-primary: #3d352e;
-            --text-color-secondary: #7a6a5d;
-            --bg-light: #fdfaf5;
-            --border-color: #e0d5c1;
-            --sidebar-bg: #3d352e;
-            --sidebar-text: #f5eadd;
-            --success-color: #28a745;
+            --primary-color: #e67e22;
+            --primary-color-dark: #d35400;
+            --secondary-color: #2c3e50;
+            --text-color-primary: #34495e;
+            --text-color-secondary: #7f8c8d;
+            --bg-light: #f5f7fa;
+            --bg-white: #ffffff;
+            --border-color: #e4e7ed;
+            --sidebar-bg: #2c3e50;
+            --sidebar-text: #ecf0f1;
+            --success-color: #27ae60;
+            --danger-color: #c0392b;
             --font-family: 'Tajawal', sans-serif;
+            --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 6px 15px rgba(0, 0, 0, 0.08);
+            --border-radius: 12px;
         }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        /* --- التعديل الأول: منع الحركة الأفقية --- */
+        html, body {
+            overflow-x: hidden;
+        }
+
         body {
             font-family: var(--font-family);
             background-color: var(--bg-light);
             color: var(--text-color-primary);
+            font-size: 16px;
+            line-height: 1.6;
+            position: relative; /* ضروري لضمان عمل overflow بشكل صحيح */
         }
+
         .admin-wrapper {
             display: flex;
             min-height: 100vh;
         }
+
+        /* --- Sidebar Styles --- */
         .sidebar {
             width: 260px;
             background-color: var(--sidebar-bg);
             color: var(--sidebar-text);
-            padding: 20px;
+            padding: 25px 15px;
             display: flex;
             flex-direction: column;
-            transition: margin-right 0.3s ease;
+            transition: all 0.3s ease;
+            position: fixed;
+            right: 0;
+            top: 0;
+            height: 100%;
+            z-index: 1000;
         }
-        .sidebar-header { text-align: center; margin-bottom: 30px; }
-        .sidebar-header h2 { color: var(--primary-color); font-size: 1.8em; }
-        .sidebar-actions button {
-            display: block; width: 100%; background-color: var(--primary-color);
-            color: white; border: none; padding: 12px; font-size: 1.1em;
-            border-radius: 8px; cursor: pointer; transition: background-color 0.3s;
-            font-family: var(--font-family); margin-bottom: 15px;
-        }
-        .sidebar-actions button:hover { background-color: var(--primary-color-dark); }
-        .stats-cards { margin-top: auto; }
-        .stat-card { background-color: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; margin-bottom: 10px; text-align: center; }
-        .stat-card h4 { color: #f5eadd; font-size: 1.1em; margin-bottom: 5px; }
-        .stat-card p { color: var(--primary-color); font-size: 1.5em; font-weight: bold; }
 
+        .sidebar-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 0 10px;
+        }
+        .sidebar-header h2 {
+            color: var(--primary-color);
+            font-size: 2em;
+            font-weight: 800;
+        }
+        .sidebar-header p {
+            color: var(--text-color-secondary);
+            font-size: 0.9em;
+        }
+
+        .sidebar-actions .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            font-family: var(--font-family);
+            margin-bottom: 20px;
+        }
+        .sidebar-actions .btn:hover {
+            background-color: var(--primary-color-dark);
+            transform: translateY(-2px);
+        }
+        .sidebar-actions .btn i { margin-left: 10px; }
+
+        .stats-cards { margin-top: auto; }
+        .stat-card {
+            background-color: rgba(255, 255, 255, 0.07);
+            padding: 20px 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+            text-align: center;
+            border-left: 4px solid var(--primary-color);
+        }
+        .stat-card h4 {
+            color: #bdc3c7;
+            font-size: 1em;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .stat-card p {
+            color: var(--bg-white);
+            font-size: 2em;
+            font-weight: 700;
+        }
+
+        /* --- Main Content --- */
         .main-content {
             flex-grow: 1;
             padding: 30px;
-            overflow-x: auto;
+            transition: margin-right 0.3s ease;
+            margin-right: 260px;
+            width: 100%; /* ضمان أن المحتوى لا يتجاوز العرض */
         }
-        .main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .main-header h1 { font-size: 2.2em; }
-        .mobile-menu-toggle { display: none; background: none; border: none; font-size: 1.8em; cursor: pointer; color: var(--text-color-primary); }
 
-        .table-container { background-color: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; }
-        table { width: 100%; border-collapse: collapse; text-align: right; }
-        th, td { padding: 15px 20px; }
-        thead { background-color: #f7f3ed; }
-        th { font-weight: 700; color: var(--text-color-primary); }
-        tbody tr:not(:last-child) { border-bottom: 1px solid var(--border-color); }
-        tbody tr:hover { background-color: #fcf8f2; }
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .main-header h1 { font-size: 2.4em; font-weight: 800; }
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 1.8em;
+            cursor: pointer;
+            color: var(--text-color-primary);
+        }
+
+        .content-card {
+            background-color: var(--bg-white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            padding: 25px;
+        }
+
+        .table-responsive {
+            overflow-x: auto; /* يسمح بالتمرير الأفقي للجدول فقط عند الحاجة على الشاشات الصغيرة */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: right;
+            min-width: 600px; /* يضمن عدم انهيار الجدول بشكل سيء */
+        }
+        th, td { padding: 18px 15px; }
+        thead { border-bottom: 2px solid var(--border-color); }
+        th {
+            font-weight: 700;
+            color: var(--text-color-primary);
+            font-size: 1.1em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        tbody tr { border-bottom: 1px solid var(--border-color); }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background-color: #f9fbfd; }
+
         .id-cell { display: flex; align-items: center; }
-        .copy-btn { background: none; border: none; color: var(--text-color-secondary); cursor: pointer; margin-right: 8px; font-size: 1em; }
+        .copy-btn {
+            background: none; border: none; color: var(--text-color-secondary);
+            cursor: pointer; margin-left: 10px; font-size: 1em;
+            transition: color 0.3s;
+        }
         .copy-btn:hover { color: var(--primary-color); }
-        .action-btn {
-            background-color: var(--success-color); color: white; border: none; padding: 6px 12px;
-            border-radius: 6px; cursor: pointer; font-size: 0.9em;
-        }
 
-        /* Modal Styles */
+        .btn-action {
+            background-color: var(--success-color); color: white; border: none;
+            padding: 8px 16px; border-radius: 6px; cursor: pointer;
+            font-size: 0.9em; font-family: var(--font-family); transition: background-color 0.3s;
+        }
+        .btn-action:hover { background-color: #229954; }
+
+        /* --- Modal Styles --- */
         .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.6); z-index: 1000;
-            justify-content: center; align-items: center;
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
+        .modal-overlay.active { display: flex; opacity: 1; }
         .modal-content {
-            background-color: white; padding: 30px; border-radius: 12px;
-            width: 90%; max-width: 500px; position: relative;
+            background-color: white; padding: 35px;
+            border-radius: var(--border-radius);
+            width: 90%; max-width: 500px;
+            position: relative;
+            box-shadow: var(--shadow-md);
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
         }
-        .modal-close-btn {
-            position: absolute; top: 10px; left: 10px; background: none; border: none;
-            font-size: 2em; color: #aaa; cursor: pointer;
-        }
-        .modal-content h3 { color: var(--primary-color); margin-bottom: 20px; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
-        .form-group input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-family: var(--font-family); font-size: 1em; }
-        .modal-actions { text-align: left; margin-top: 20px; }
-        .modal-actions button {
-            background-color: var(--primary-color); color: white; border: none;
-            padding: 10px 25px; border-radius: 8px; cursor: pointer; font-size: 1em;
-            font-family: var(--font-family); min-width: 120px; text-align: center;
-        }
-        .modal-actions button:disabled { background-color: #95a5a6; cursor: not-allowed; }
-        .modal-actions button .fas { margin-left: 8px; }
+        .modal-overlay.active .modal-content { transform: scale(1); }
 
-        #loader { text-align: center; padding: 50px; }
+        .modal-close-btn {
+            position: absolute; top: 15px; left: 15px; background: none; border: none;
+            font-size: 2em; color: #b0b0b0; cursor: pointer; line-height: 1;
+            transition: color 0.3s, transform 0.2s;
+        }
+        .modal-close-btn:hover { color: var(--danger-color); transform: rotate(90deg); }
+
+        .modal-content h3 {
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            text-align: center;
+        }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; font-size: 1.1em; }
+        .form-group input {
+            width: 100%; padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px; font-family: var(--font-family);
+            font-size: 1em; transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.2);
+        }
+        .modal-actions { text-align: left; margin-top: 30px; }
+        .modal-actions .btn-submit {
+            background-color: var(--primary-color); color: white; border: none;
+            padding: 12px 30px; border-radius: 8px; cursor: pointer;
+            font-size: 1.1em; font-family: var(--font-family);
+            transition: background-color 0.3s;
+        }
+        .modal-actions .btn-submit:hover { background-color: var(--primary-color-dark); }
+        .modal-actions .btn-submit:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+        .modal-actions .btn-submit .fas { margin-left: 8px; }
+
+        /* --- Loader --- */
+        #loader { text-align: center; padding: 60px; font-size: 1.2em; }
         .spinner {
-            border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color);
-            border-radius: 50%; width: 50px; height: 50px;
-            animation: spin 1s linear infinite; margin: 0 auto;
+            border: 6px solid #f3f3f3; border-top: 6px solid var(--primary-color);
+            border-radius: 50%; width: 60px; height: 60px;
+            animation: spin 1s linear infinite; margin: 0 auto 20px;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .admin-wrapper { flex-direction: column; }
-            .sidebar {
-                width: 100%;
-                position: fixed; top: 0; right: 0;
-                margin-right: -100%; z-index: 2000; height: 100vh;
-                box-shadow: -5px 0 15px rgba(0,0,0,0.2);
-            }
-            .sidebar.active { margin-right: 0; }
-            .main-content { padding: 20px; }
-            .main-header { margin-bottom: 20px; }
+        /* --- Responsive Design --- */
+        @media (max-width: 992px) {
+            .sidebar { margin-right: -260px; }
+            .sidebar.active { margin-right: 0; box-shadow: -5px 0 15px rgba(0,0,0,0.2); }
+            .main-content { margin-right: 0; }
+        }
+
+        @media (max-width: 576px) {
+            body { font-size: 15px; }
+            .main-content { padding: 20px 15px; }
             .main-header h1 { font-size: 1.8em; }
-            .mobile-menu-toggle { display: block; }
-            th, td { padding: 12px 10px; font-size: 0.9em; }
-            .id-cell span { max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .content-card { padding: 15px; }
+            .modal-content { padding: 25px; }
+            .id-cell span { max-width: 70px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         }
     </style>
 </head>
@@ -137,10 +285,10 @@
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <h2>HAJIB SOFT</h2>
-                <p>لوحة التحكم</p>
+                <p>لوحة تحكم المشتركين</p>
             </div>
             <div class="sidebar-actions">
-                <button id="add-subscriber-btn"><i class="fas fa-user-plus"></i> إضافة مشترك جديد</button>
+                <button class="btn" id="add-subscriber-btn"><i class="fas fa-user-plus"></i> إضافة مشترك</button>
             </div>
             <div class="stats-cards">
                 <div class="stat-card">
@@ -148,7 +296,7 @@
                     <p id="total-subscribers-stat">0</p>
                 </div>
                 <div class="stat-card">
-                    <h4>إجمالي الوجبات المتبقية</h4>
+                    <h4>إجمالي الوجبات</h4>
                     <p id="total-meals-stat">0</p>
                 </div>
             </div>
@@ -157,25 +305,30 @@
         <!-- Main Content -->
         <main class="main-content">
             <header class="main-header">
+                <button class="menu-toggle" id="menu-toggle"><i class="fas fa-bars"></i></button>
                 <h1>قائمة المشتركين</h1>
-                <button class="mobile-menu-toggle" id="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
             </header>
-            <div class="table-container" id="table-container">
-                <div id="loader"><div class="spinner"></div><p>جاري تحميل البيانات...</p></div>
-                <table id="subscribers-table" style="display:none;">
-                    <thead>
-                        <tr>
-                            <th>الاسم</th>
-                            <th>رمز الاشتراك</th>
-                            <th>الوجبات المتبقية</th>
-                            <th>رقم الجوال</th>
-                            <th>إجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-body">
-                        <!-- Rows will be inserted here by JavaScript -->
-                    </tbody>
-                </table>
+            <div class="content-card">
+                <div id="loader">
+                    <div class="spinner"></div>
+                    <p>جاري تحميل البيانات...</p>
+                </div>
+                <div class="table-responsive" id="table-container" style="display:none;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>الاسم</th>
+                                <th>رمز الاشتراك</th>
+                                <th>الوجبات المتبقية</th>
+                                <th>رقم الجوال</th>
+                                <th>إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <!-- Rows will be inserted here by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </main>
     </div>
@@ -184,26 +337,26 @@
     <div class="modal-overlay" id="add-user-modal">
         <div class="modal-content">
             <button class="modal-close-btn">&times;</button>
-            <h3>إضافة مشترك جديد</h3>
+            <h3><i class="fas fa-user-plus" style="color:var(--primary-color)"></i> مشترك جديد</h3>
             <form id="add-user-form">
                 <div class="form-group">
                     <label for="name">اسم العميل</label>
-                    <input type="text" id="name" required>
+                    <input type="text" id="name" placeholder="مثال: محمد حاجب" required>
                 </div>
                 <div class="form-group">
                     <label for="phone">رقم الجوال</label>
-                    <input type="tel" id="phone" required>
+                    <input type="tel" id="phone" placeholder="مثال: 05xxxxxxx" required>
                 </div>
                 <div class="form-group">
                     <label for="address">العنوان (اختياري)</label>
-                    <input type="text" id="address">
+                    <input type="text" id="address" placeholder="مثال: الرياض، حي الملز">
                 </div>
                 <div class="form-group">
                     <label for="initial-meals">الرصيد المبدئي للوجبات</label>
-                    <input type="number" id="initial-meals" required min="1">
+                    <input type="number" id="initial-meals" placeholder="مثال: 30" required min="1">
                 </div>
                 <div class="modal-actions">
-                    <button type="submit">إضافة</button>
+                    <button type="submit" class="btn-submit">إضافة المشترك</button>
                 </div>
             </form>
         </div>
@@ -213,15 +366,15 @@
     <div class="modal-overlay" id="add-meals-modal">
         <div class="modal-content">
             <button class="modal-close-btn">&times;</button>
-            <h3 id="add-meals-title">إضافة رصيد إلى</h3>
+            <h3 id="add-meals-title">إضافة رصيد</h3>
             <form id="add-meals-form">
                 <input type="hidden" id="meals-subscriber-id">
                 <div class="form-group">
                     <label for="meals-to-add">عدد الوجبات المراد إضافتها</label>
-                    <input type="number" id="meals-to-add" required min="1">
+                    <input type="number" id="meals-to-add" placeholder="مثال: 15" required min="1">
                 </div>
                 <div class="modal-actions">
-                    <button type="submit">تأكيد الإضافة</button>
+                    <button type="submit" class="btn-submit">تأكيد الإضافة</button>
                 </div>
             </form>
         </div>
@@ -229,32 +382,32 @@
 
     <script>
         // !!!!!!   هام: الصق رابط الـ WEB APP الذي نسخته من APPS SCRIPT هنا   !!!!!!
-        const googleWebAppUrl = 'https://script.google.com/macros/s/AKfycbyQrWgr8c27nvo5Ipxbs3jg1OJc-4zxdNtRbE8uX56kvfWILBokNYajE9J3v3uV45w8tA/exec'; 
+        const googleWebAppUrl = 'https://script.google.com/macros/s/AKfycbyQrWgr8c27nvo5Ipxbs3jg1OJc-4zxdNtRbE8uX56kvfWILBokNYajE9J3v3uV45w8tA/exec';
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Check if the URL is still the default placeholder
             if (googleWebAppUrl === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
-                alert('الرجاء تحديث رابط الـ Web App في ملف admin.html قبل المتابعة.');
-                document.getElementById('loader').innerHTML = '<p style="color:red; font-weight:bold;">خطأ: لم يتم إعداد رابط الواجهة الخلفية (Apps Script). يرجى مراجعة المطور.</p>';
+                const loader = document.getElementById('loader');
+                loader.innerHTML = '<p style="color:var(--danger-color); font-weight:bold;">خطأ: لم يتم إعداد رابط الواجهة الخلفية (Apps Script). يرجى مراجعة المطور.</p>';
                 return;
             }
-            
+
             const tableBody = document.getElementById('table-body');
             const loader = document.getElementById('loader');
-            const subscribersTable = document.getElementById('subscribers-table');
-            
-            // --- Modals ---
+            const tableContainer = document.getElementById('table-container');
+            const sidebar = document.getElementById('sidebar'); // تعريف القائمة الجانبية هنا
+
             const addUserModal = document.getElementById('add-user-modal');
             const addMealsModal = document.getElementById('add-meals-modal');
 
-            // --- Buttons ---
-            document.getElementById('add-subscriber-btn').addEventListener('click', () => openModal(addUserModal));
+            // --- التعديل الثاني: إخفاء القائمة عند الضغط على زر الإضافة ---
+            document.getElementById('add-subscriber-btn').addEventListener('click', () => {
+                sidebar.classList.remove('active'); // إخفاء القائمة الجانبية
+                openModal(addUserModal); // فتح نافذة الإضافة
+            });
             
-            // --- Forms ---
             document.getElementById('add-user-form').addEventListener('submit', handleAddUser);
             document.getElementById('add-meals-form').addEventListener('submit', handleAddMeals);
 
-            // --- Close Modals Logic ---
             document.querySelectorAll('.modal-overlay').forEach(modal => {
                 modal.addEventListener('click', (e) => {
                     if (e.target === modal) closeModal(modal);
@@ -262,18 +415,18 @@
                 modal.querySelector('.modal-close-btn').addEventListener('click', () => closeModal(modal));
             });
 
-            // --- Mobile Menu ---
-            const sidebar = document.getElementById('sidebar');
-            document.getElementById('mobile-menu-toggle').addEventListener('click', () => sidebar.classList.toggle('active'));
+            // --- Menu Toggle Logic ---
+            const menuToggle = document.getElementById('menu-toggle');
+            menuToggle.addEventListener('click', () => sidebar.classList.toggle('active'));
 
-            // --- Core Functions ---
             async function fetchAndRenderSubscribers() {
                 loader.style.display = 'block';
-                subscribersTable.style.display = 'none';
+                tableContainer.style.display = 'none';
                 tableBody.innerHTML = '';
 
                 try {
                     const response = await fetch(`${googleWebAppUrl}?action=getAllSubscribers`);
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     const result = await response.json();
                     if (result.status !== 'success') throw new Error(result.message);
                     
@@ -281,53 +434,49 @@
                     updateStats(result.data);
 
                 } catch (error) {
-                    loader.innerHTML = `<p style="color:red;">فشل تحميل البيانات: ${error.message}</p>`;
+                    loader.innerHTML = `<p style="color:var(--danger-color);">فشل تحميل البيانات: ${error.message}</p>`;
                 } finally {
                     loader.style.display = 'none';
-                    subscribersTable.style.display = 'table';
+                    tableContainer.style.display = 'block';
                 }
             }
 
             function renderTable(subscribers) {
                 if(subscribers.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا يوجد مشتركين حالياً.</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 40px;">لا يوجد مشتركين حالياً. يمكنك إضافة مشترك جديد من الشريط الجانبي.</td></tr>';
                     return;
                 }
                 subscribers.forEach(sub => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td>${sub.name}</td>
+                        <td><strong>${sub.name}</strong></td>
                         <td class="id-cell">
-                            <button class="copy-btn" title="نسخ الرمز"><i class="fas fa-copy"></i></button>
                             <span>${sub.id}</span>
+                            <button class="copy-btn" title="نسخ الرمز"><i class="far fa-copy"></i></button>
                         </td>
-                        <td><strong>${sub.remainingMeals}</strong></td>
+                        <td><span style="font-size: 1.2em; color: var(--primary-color); font-weight: 700;">${sub.remainingMeals}</span></td>
                         <td>${sub.phone}</td>
-                        <td><button class="action-btn" data-id="${sub.id}" data-name="${sub.name}">إضافة رصيد</button></td>
+                        <td><button class="btn-action" data-id="${sub.id}" data-name="${sub.name}">إضافة رصيد</button></td>
                     `;
                     tableBody.appendChild(row);
                 });
 
                 tableBody.querySelectorAll('.copy-btn').forEach(btn => btn.addEventListener('click', handleCopyId));
-                tableBody.querySelectorAll('.action-btn').forEach(btn => btn.addEventListener('click', handleOpenAddMealsModal));
+                tableBody.querySelectorAll('.btn-action').forEach(btn => btn.addEventListener('click', handleOpenAddMealsModal));
             }
 
             function updateStats(subscribers) {
-                const totalSubs = subscribers.length;
-                const totalMeals = subscribers.reduce((sum, sub) => sum + Number(sub.remainingMeals), 0);
-                document.getElementById('total-subscribers-stat').textContent = totalSubs;
-                document.getElementById('total-meals-stat').textContent = totalMeals;
+                document.getElementById('total-subscribers-stat').textContent = subscribers.length;
+                document.getElementById('total-meals-stat').textContent = subscribers.reduce((sum, sub) => sum + Number(sub.remainingMeals), 0);
             }
 
-            // --- Event Handlers with Loading State ---
             async function handleAddUser(e) {
                 e.preventDefault();
                 const form = e.target;
                 const submitButton = form.querySelector('button[type="submit"]');
                 const originalButtonHTML = submitButton.innerHTML;
                 
-                submitButton.disabled = true;
-                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإضافة...';
+                setLoadingState(submitButton, 'جاري الإضافة...');
 
                 const payload = {
                     action: "addNewSubscriber",
@@ -338,12 +487,11 @@
                 };
                 
                 try {
-                    await postData(payload, `تمت إضافة المشترك بنجاح!`);
+                    await postData(payload, `تمت إضافة "${payload.name}" بنجاح!`);
                     closeModal(addUserModal);
                     form.reset();
                 } finally {
-                    submitButton.disabled = false;
-                    submitButton.innerHTML = originalButtonHTML;
+                    resetLoadingState(submitButton, originalButtonHTML);
                 }
             }
             
@@ -353,8 +501,7 @@
                 const submitButton = form.querySelector('button[type="submit"]');
                 const originalButtonHTML = submitButton.innerHTML;
 
-                submitButton.disabled = true;
-                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحديث...';
+                setLoadingState(submitButton, 'جاري التحديث...');
 
                 const payload = {
                     action: "addMeals",
@@ -367,21 +514,20 @@
                     closeModal(addMealsModal);
                     form.reset();
                 } finally {
-                    submitButton.disabled = false;
-                    submitButton.innerHTML = originalButtonHTML;
+                    resetLoadingState(submitButton, originalButtonHTML);
                 }
             }
 
             function handleOpenAddMealsModal(e) {
                 const id = e.target.dataset.id;
                 const name = e.target.dataset.name;
-                document.getElementById('add-meals-title').textContent = `إضافة رصيد إلى ${name}`;
+                document.getElementById('add-meals-title').innerHTML = `إضافة رصيد إلى <br><strong style="color:var(--secondary-color);">${name}</strong>`;
                 document.getElementById('meals-subscriber-id').value = id;
                 openModal(addMealsModal);
             }
 
             function handleCopyId(e) {
-                const id = e.currentTarget.nextElementSibling.textContent;
+                const id = e.currentTarget.previousElementSibling.textContent;
                 navigator.clipboard.writeText(id).then(() => {
                     alert(`تم نسخ الرمز: ${id}`);
                 });
@@ -389,24 +535,38 @@
 
             async function postData(payload, successMessage) {
                 try {
-                    const response = await fetch(googleWebAppUrl, {
+                    await fetch(googleWebAppUrl, {
                         method: 'POST',
-                        mode: 'no-cors',
+                        mode: 'no-cors', 
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        redirect: 'follow',
                         body: JSON.stringify(payload)
                     });
                     alert(successMessage);
-                    fetchAndRenderSubscribers(); // Refresh data
+                    fetchAndRenderSubscribers();
                 } catch (error) {
-                    alert(`حدث خطأ: ${error.message}`);
+                    console.error('Fetch Error:', error);
+                    alert(`حدث خطأ أثناء إرسال البيانات. قد تكون العملية تمت بنجاح. يرجى تحديث الصفحة.`);
                 }
             }
             
-            // --- Modal Helpers ---
-            function openModal(modal) { modal.style.display = 'flex'; }
-            function closeModal(modal) { modal.style.display = 'none'; }
+            function setLoadingState(button, text) {
+                button.disabled = true;
+                button.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${text}`;
+            }
 
-            // --- Initial Load ---
+            function resetLoadingState(button, originalHTML) {
+                button.disabled = false;
+                button.innerHTML = originalHTML;
+            }
+
+            function openModal(modal) {
+                modal.classList.add('active');
+            }
+            function closeModal(modal) {
+                modal.classList.remove('active');
+            }
+
             fetchAndRenderSubscribers();
         });
     </script>
