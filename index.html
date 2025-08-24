@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>باقة الفسحة - تصميم جديد</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #f8f9fa; /* لون خلفية فاتح ونظيف */
+            --surface-color: #ffffff; /* لون البطاقات */
+            --primary-color: #2ecc71; /* أخضر زاهي وعصري */
+            --primary-color-dark: #27ae60; /* درجة أغمق للتأثيرات */
+            --text-color-primary: #2c3e50; /* لون نص أساسي داكن ومريح */
+            --text-color-secondary: #8295a7; /* لون نص ثانوي */
+            --border-color: #e9ecef;
+            --shadow-color: rgba(44, 62, 80, 0.1);
+            --font-family: 'Tajawal', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-color-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        .navbar {
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            padding: 12px 20px;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .navbar-brand { font-size: 1.8em; font-weight: 800; color: var(--primary-color-dark); text-decoration: none; }
+        .cart-toggle-button {
+            background: none; border: none; font-size: 1.6em; color: var(--primary-color-dark);
+            cursor: pointer; position: relative; padding: 8px; text-decoration: none;
+        }
+        .cart-toggle-button .cart-count-badge {
+            position: absolute; top: 0px; right: 0px; background-color: var(--primary-color);
+            color: white; font-size: 0.6em; padding: 3px 7px;
+            border-radius: 50%; font-weight: 700; border: 2px solid white;
+        }
+
+        .page-header { text-align: center; margin: 40px 0; }
+        .page-header img { max-width: 150px; margin-bottom: 15px; }
+        .page-title { font-size: 2.8em; font-weight: 800; color: var(--text-color-primary); }
+
+        .search-controls {
+            display: flex; justify-content: space-between; align-items: center;
+            gap: 15px; margin-bottom: 20px; flex-wrap: wrap;
+        }
+        .search-container { position: relative; flex-grow: 1; }
+        #search-input {
+            width: 100%; padding: 14px 25px 14px 50px; border: 1px solid var(--border-color);
+            background: var(--surface-color); border-radius: 30px; font-family: var(--font-family);
+            font-size: 1em; outline: none; box-shadow: 0 4px 10px var(--shadow-color);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        #search-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.2), 0 4px 10px var(--shadow-color);
+        }
+        .search-icon { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #aaa; }
+        
+        .view-toggle-btn {
+            background-color: var(--surface-color); color: var(--text-color-secondary);
+            border: 1px solid var(--border-color); padding: 12px 16px; border-radius: 30px;
+            cursor: pointer; font-size: 1.2em; transition: all 0.3s ease;
+            box-shadow: 0 4px 10px var(--shadow-color); flex-shrink: 0;
+        }
+        .view-toggle-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
+        .view-toggle-btn.active-compact-view { background-color: var(--primary-color); color: white; border-color: var(--primary-color); }
+
+        .filters-container-wrapper { overflow-x: auto; padding-bottom: 10px; margin-bottom: 30px; }
+        .filters-container-wrapper::-webkit-scrollbar { height: 6px; }
+        .filters-container-wrapper::-webkit-scrollbar-thumb { background: var(--primary-color); border-radius: 10px; }
+        .filters-container-wrapper::-webkit-scrollbar-track { background: var(--border-color); }
+        .filters-container { display: flex; flex-wrap: nowrap; gap: 12px; padding: 5px 0; }
+        .filter-btn {
+            background-color: var(--surface-color); color: var(--text-color-secondary);
+            border: 1px solid var(--border-color); padding: 10px 25px; border-radius: 30px;
+            cursor: pointer; font-size: 1em; font-family: var(--font-family); font-weight: 500;
+            transition: all 0.3s ease; white-space: nowrap; flex-shrink: 0;
+        }
+        .filter-btn:hover { background-color: #fdfdfd; border-color: var(--primary-color); color: var(--primary-color); transform: translateY(-2px); }
+        .filter-btn.active {
+            background-color: var(--primary-color); color: white; border-color: var(--primary-color-dark);
+            font-weight: 700; box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+        }
+
+        .category-section { margin-bottom: 50px; }
+        .category-title {
+            font-size: 2em; font-weight: 700; color: var(--text-color-primary); margin-bottom: 25px;
+            text-align: right; padding-bottom: 10px; border-bottom: 3px solid var(--primary-color); display: inline-block;
+        }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
+        .product-card {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 6px 20px var(--shadow-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .product-card:hover { transform: translateY(-8px); box-shadow: 0 12px 30px rgba(44, 62, 80, 0.12); }
+        .product-card img { width: 100%; height: 200px; object-fit: cover; transition: transform 0.3s ease; }
+        .product-card:hover img { transform: scale(1.05); }
+        
+        .product-info { padding: 5px 20px 15px; display: flex; flex-direction: column; flex-grow: 1; text-align: center; }
+        .product-card h3 { margin: 15px 0; font-size: 1.4em; font-weight: 700; color: var(--text-color-primary); flex-grow: 1; }
+        
+        /* --- Modern Nutritional Info --- */
+        .nutritional-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            padding-top: 15px;
+            margin-top: 10px;
+            border-top: 1px solid var(--border-color);
+        }
+        .nutrient {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .nutrient i {
+            font-size: 1.6em;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            opacity: 0.8;
+        }
+        .nutrient .value {
+            font-weight: 700;
+            font-size: 1.1em;
+            color: var(--text-color-primary);
+            line-height: 1.2;
+        }
+        .nutrient .label {
+            font-size: 0.8em;
+            color: var(--text-color-secondary);
+        }
+        .product-description-fallback {
+             font-size: 0.9em; color: var(--text-color-secondary); padding: 20px 0;
+        }
+        /* --- End Nutritional Info --- */
+
+        .card-action { margin-top: auto; padding: 20px; }
+        .product-card .customize-btn, .product-card .direct-add-btn {
+            background-color: var(--primary-color); color: white; border: none; padding: 12px;
+            font-size: 1em; font-family: var(--font-family); font-weight: 700; border-radius: 10px;
+            cursor: pointer; transition: background-color 0.3s, transform 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+        }
+        .product-card .customize-btn:hover, .product-card .direct-add-btn:hover { background-color: var(--primary-color-dark); transform: scale(1.03); }
+
+        body.compact-view .products-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+        body.compact-view .product-card img { height: 120px; }
+        body.compact-view .product-card h3 { font-size: 1.1em; }
+        body.compact-view .nutritional-info { grid-template-columns: 1fr; gap: 10px; }
+        body.compact-view .nutrient i { font-size: 1.2em; margin-bottom: 4px; }
+        body.compact-view .nutrient .value { font-size: 1em; }
+
+        .site-footer {
+            background-color: #2c3e50; color: #ecf0f1; padding: 50px 0 20px 0;
+            margin-top: 60px; border-top: 5px solid var(--primary-color);
+        }
+        .footer-content { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 40px; margin-bottom: 40px; }
+        .footer-section { flex: 1; min-width: 280px; text-align: center; }
+        .footer-restaurant-name { font-size: 2em; color: var(--primary-color); margin: 0 0 10px; font-weight: 800; }
+        .footer-tagline { font-size: 1em; color: var(--border-color); margin-bottom: 10px; }
+        .footer-section h4 { font-size: 1.3em; color: var(--primary-color); margin-bottom: 20px; }
+        .footer-social-links a { color: #ecf0f1; font-size: 1.6em; margin: 0 12px; transition: color 0.3s, transform 0.2s; display: inline-block; }
+        .footer-social-links a:hover { color: var(--primary-color); transform: translateY(-3px); }
+        .footer-bottom { border-top: 1px solid #34495e; padding-top: 20px; font-size: 0.9em; color: #bdc3c7; text-align: center; }
+        .calorie-note {
+            font-size: 0.8em; color: #95a5a6; max-width: 600px;
+            margin: 0 auto 20px auto; line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .page-title { font-size: 2.2em; }
+            .products-grid { grid-template-columns: 1fr; }
+            .footer-content { flex-direction: column; align-items: center; }
+            body.compact-view .products-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 1001; justify-content: center; align-items: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background-color: var(--surface-color); padding: 30px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); width: 90%; max-width: 550px; max-height: 90vh; overflow-y: auto; position: relative; animation: fadeInModal 0.3s ease-out; }
+        @keyframes fadeInModal { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-close-btn { position: absolute; top: 15px; left: 15px; background: none; border: none; font-size: 2.5em; color: #aaa; cursor: pointer; line-height: 1; }
+        .modal-product-image { width: 100%; height: 220px; object-fit: cover; border-radius: 8px; margin-bottom: 20px; }
+        .modal-product-title { font-size: 1.8em; color: var(--primary-color-dark); margin-bottom: 20px; text-align: center; font-weight: 700; }
+        .modal-customizations .option-group { margin-bottom: 20px; border-top: 1px solid var(--border-color); padding-top: 15px; }
+        .modal-customizations .option-group legend { font-weight: 700; margin-bottom: 10px; color: var(--text-color-primary); font-size: 1.1em; }
+        .modal-customizations .option-item { display: block; margin-bottom: 8px; font-size: 1em; }
+        .modal-customizations .option-item label { margin-right: 8px; cursor: pointer; }
+        .modal-customizations .option-item input { margin-left: 10px; vertical-align: middle; }
+        .modal-quantity-controls { display: flex; justify-content: center; align-items: center; margin: 25px 0; }
+        .modal-quantity-controls input[type="number"] { width: 70px; padding: 10px; text-align: center; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1.1em; margin: 0 10px; }
+        .modal-add-to-cart-btn { background-color: var(--primary-color); color: white; border: none; padding: 14px 25px; text-align: center; display: block; width: 100%; font-size: 1.2em; font-family: var(--font-family); border-radius: 8px; cursor: pointer; transition: background-color 0.3s; }
+        .modal-add-to-cart-btn:hover { background-color: var(--primary-color-dark); }
+        
+        .notification-toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background-color: var(--primary-color-dark); color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 1003; transition: bottom 0.5s ease; font-size: 1em; }
+        .notification-toast.show { bottom: 30px; }
+        
+        .ad-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.75); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
+        .ad-modal-content { position: relative; background-color: transparent; max-width: 500px; width: 100%; animation: fadeInModal 0.4s ease-out; }
+        .ad-modal-content img { width: 100%; height: auto; display: block; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .ad-modal-close-btn { position: absolute; top: -15px; right: -15px; background: white; color: #333; border: 2px solid #333; border-radius: 50%; width: 40px; height: 40px; font-size: 2em; font-weight: bold; line-height: 36px; text-align: center; cursor: pointer; transition: transform 0.2s, background-color 0.2s; z-index: 2001; }
+        .ad-modal-close-btn:hover { transform: scale(1.1); background-color: #f0f0f0; }
+    </style>
+</head>
+<body>
+
+    <div class="ad-modal-overlay" id="ad-popup-modal">
+        <div class="ad-modal-content">
+            <button class="ad-modal-close-btn" id="ad-popup-close-btn">&times;</button>
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgAZywtz8edTeAYL4_xuVze32oUxUJYPOEaWiefgQ_RaPNLz2G-WFCLZSyGi0dslZtJDJnwKRvz4IMbpZpCuZqK_Mahl7P3gGkUBOdH1wE03Qp4Au541SHL_VWcjfZTDx7TVuEYbBXu5f-HlJpq_isYiZ2grvaxKSlIhyphenhyphenBV_sO7_Xawk9a-2spx5Pvpi29s/s1280/WhatsApp%20Image%202025-08-11%20at%202.58.51%20PM.jpeg" alt="عرض خاص">
+        </div>
+    </div>
+    
+    <div class="modal-overlay" id="customization-modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="modal-close-btn">&times;</button>
+            <img src="" alt="Product Image" class="modal-product-image" id="modal-product-image">
+            <h2 class="modal-product-title" id="modal-product-title"></h2>
+            <div class="modal-customizations" id="modal-customizations-container"></div>
+            <div class="modal-quantity-controls">
+                <input type="number" id="modal-quantity" value="1" min="1" aria-label="الكمية">
+            </div>
+            <button class="modal-add-to-cart-btn" id="modal-add-to-cart-btn">
+                أضف للطلبات <i class="fas fa-cart-plus"></i>
+            </button>
+        </div>
+    </div>
+
+    <nav class="navbar">
+        <a href="#" class="navbar-brand">NUTRI BOX</a>
+        <a href="checkout.html" class="cart-toggle-button" aria-label="الذهاب إلى سلة التسوق">
+            <i class="fas fa-shopping-basket"></i>
+            <span class="cart-count-badge" id="cart-count-badge">0</span>
+        </a>
+    </nav>
+
+    <div class="container">
+        <header class="page-header">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhiO7utoiu5OKOGd6Sppo0FPzs26Wje5dOb3bXSYIQAx1jqmZlG28WHFoyQebTuUwn45f98KLne_FvPJX0e2LCfEz9xmGoHwLvZRuCk2ZT_x4RIM3ZYUkHz5P1m9THpTY592vzUE4UBYcc7KT9ggJ6HTTlIJ7KWcUOgaYiTIYFWYl_UlITMzpQRw8uTXD9e/s300/WhatsApp_Image_2025-08-03_at_1.35.08_PM-removebg-preview.png" alt="شعار مطعم NUTRI BOX - نيوتري بوكس" class="hero-logo"> <h1 class="page-title">باقة الفسحة</h1> 
+        </header>
+
+        <div class="search-controls">
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="search-input" placeholder="ابحث عن وجبتك المفضلة...">
+            </div>
+            <button id="toggle-view-btn" class="view-toggle-btn" title="تغيير طريقة العرض">
+                <i class="fas fa-th-large"></i>
+            </button>
+        </div>
+        
+        <div class="filters-container-wrapper">
+            <div class="filters-container" id="filters-container"></div>
+        </div>
+
+        <div id="menu-sections"></div>
+    </div>
+    
+    <div class="notification-toast" id="notification-toast">
+        <i class="fas fa-check-circle"></i> <span id="notification-message"></span>
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-content container">
+            <div class="footer-section">
+                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhiO7utoiu5OKOGd6Sppo0FPzs26Wje5dOb3bXSYIQAx1jqmZlG28WHFoyQebTuUwn45f98KLne_FvPJX0e2LCfEz9xmGoHwLvZRuCk2ZT_x4RIM3ZYUkHz5P1m9THpTY592vzUE4UBYcc7KT9ggJ6HTTlIJ7KWcUOgaYiTIYFWYl_UlITMzpQRw8uTXD9e/s300/WhatsApp_Image_2025-08-03_at_1.35.08_PM-removebg-preview.png" alt="شعار المطعم" class="footer-logo-img">
+                <p class="footer-tagline">الرياض، العارض، تقاطع شارع ريحانة مع طريق الملك عبد العزيز</p>
+                
+            </div>
+            <div class="footer-section">
+                <h4>كيف توصلنا</h4>
+                <div class="footer-social-links">
+                    <a href="#" aria-label="موقعنا على الخريطة"><i class="fas fa-map-marker-alt"></i></a>
+                    <a href="#" aria-label="تيك توك"><i class="fab fa-tiktok"></i></a>
+                    <a href="#" aria-label="إنستغرام"><i class="fab fa-instagram"></i></a>
+                    <a href="#" aria-label="فيسبوك"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" aria-label="واتساب"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+          
+        </div>
+        <div class="footer-bottom">
+            <p class="calorie-note">يحتاج البالغون تقريباً إلى 2000 سعرة حرارية في المتوسط يوميا، وطبعاً قد تختلف الاحتياجات الفردية من السعرات الحرارية من شخص لآخر.</p>
+            <p>© <span id="current-year"></span> جميع الحقوق محفوظة لفريق حاجب سوفت.</p>
+        </div>
+    </footer>
+    
+    <script>
+        // This key MUST match the one in checkout.html
+        const CART_STORAGE_KEY = 'restaurantAppCart_vFinalCompleteWithFooterFixed';
+        const COMPACT_VIEW_STORAGE_KEY = 'restaurantApp_compactView_v2';
+        const AD_POPUP_STORAGE_KEY = 'samamAdPopupShown_v1';
+
+        const productsData = [
+            {
+               "id": "e03ba2",
+                "name": "طبق توست فرنسي",
+                "category": "اطباق الإفطار",
+                "description": "السعرات الحرارية: 226 سعرة\nالكربوهيدرات: 44 جم\nالبروتين: 8 جم\nالدهون: 3 جم",
+               "image": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh5pQu4pxR-BZ4-3M2LZFLkK6hyphenhyphenyg1NYcLYHPMHKK68t0FA6JriGkhr0-AgabgXWrlcwullsItOz-IsFU2FBU2pVSGUnM2v52RixrX9kPjNP_wavayT1pnZym4py29ioaZMNpPHxWVucT6u1ZxbNHyFPMU6OhwmY0KKG1zmPZB45jkW6casSr8Qs92nZ3uY/s353/Crape.jpg",
+			   "customizations": [
+            {
+                "groupName": "وجبة خفيفة",
+                "type": "radio",
+                "name": "cust_Ml6mR6__",
+                "required": true,
+                "options": [
+                    {
+                        "text": "سلطة فواكة  (50 سعرة)",
+                        "value": "FROTSALD",
+                        "price": 0
+                    },
+                    {
+                        "text": "سلطة خضار (50 سعرة)",
+                        "value": "VIG_SALD",
+                        "price": 0
+                    },
+                    {
+                        "text": "سلطة التفاح والجزر (120 سعرة)",
+                        "value": "APPLE_CARROT",
+                        "price": 0
+                    }
+                ]
+            },
+            {
+                "groupName": "المشروب",
+                "type": "radio",
+                "name": "cust_Ml6mR6_",
+                "required": true,
+                "options": [
+                    {
+                        "text": "عصير تفاح",
+                        "value": "APPLEJOCE",
+                        "price": 0
+                    },
+                    {
+                        "text": "عصير برتقال",
+                        "value": "ORINGEJOSE",
+                        "price": 0
+                    },
+                    {
+                        "text": "حليب",
+                        "value": "MILK",
+                        "price": 0
+                    }
+                ]
+            }
+        ]
+    },
+];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                // --- DOM Elements ---
+                const modalOverlay = document.getElementById('customization-modal-overlay');
+                const modalCloseBtn = document.getElementById('modal-close-btn');
+                const modalProductImage = document.getElementById('modal-product-image');
+                const modalProductTitle = document.getElementById('modal-product-title');
+                const modalCustomizationsContainer = document.getElementById('modal-customizations-container');
+                const modalQuantityInput = document.getElementById('modal-quantity');
+                const modalAddToCartBtn = document.getElementById('modal-add-to-cart-btn');
+                const menuSectionsContainer = document.getElementById('menu-sections');
+                const filtersContainer = document.getElementById('filters-container');
+                const cartCountBadge = document.getElementById('cart-count-badge');
+                const notificationToast = document.getElementById('notification-toast');
+                const notificationMessage = document.getElementById('notification-message');
+                const searchInput = document.getElementById('search-input');
+                const toggleViewBtn = document.getElementById('toggle-view-btn');
+                const adPopupModal = document.getElementById('ad-popup-modal');
+                const adPopupCloseBtn = document.getElementById('ad-popup-close-btn');
+                
+                // --- State Variables ---
+                let cart = [];
+                let currentProductInModalObject = null;
+                let notificationTimeout;
+                let currentActiveFilter = 'all';
+                let currentSearchTerm = '';
+                let isCompactView = false;
+                
+                // --- Core Functions ---
+                const saveCartToLocalStorage = () => localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+                const loadCartFromLocalStorage = () => { cart = JSON.parse(localStorage.getItem(CART_STORAGE_KEY) || '[]'); };
+                const saveViewPreference = () => localStorage.setItem(COMPACT_VIEW_STORAGE_KEY, isCompactView);
+                
+                function loadViewPreference() {
+                    isCompactView = localStorage.getItem(COMPACT_VIEW_STORAGE_KEY) === 'true';
+                    document.body.classList.toggle('compact-view', isCompactView);
+                    toggleViewBtn.classList.toggle('active-compact-view', isCompactView);
+                    toggleViewBtn.innerHTML = isCompactView ? '<i class="fas fa-th-list"></i>' : '<i class="fas fa-th-large"></i>';
+                    toggleViewBtn.title = isCompactView ? "عرض عادي" : "عرض مضغوط";
+                }
+
+                function displayFilterButtons() {
+                    filtersContainer.innerHTML = '';
+                    const categories = ['all', ...new Set(productsData.map(p => p.category))];
+                    categories.forEach(category => {
+                        const button = document.createElement('button');
+                        button.className = 'filter-btn';
+                        button.dataset.category = category;
+                        button.textContent = category === 'all' ? 'عرض الكل' : category;
+                        if (category === currentActiveFilter) button.classList.add('active');
+                        button.onclick = function() {
+                            currentActiveFilter = this.dataset.category;
+                            displayProducts();
+                            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                            this.classList.add('active');
+                        };
+                        filtersContainer.appendChild(button);
+                    });
+                }
+
+                function createNutritionalHTML(description) {
+                    if (!description) return '<p class="product-description-fallback">وصف قصير للطبق اللذيذ.</p>';
+
+                    const nutrients = description.split('\n');
+                    const iconMap = {
+                        'السعرات الحرارية': 'fa-fire-alt',
+                        'الكربوهيدرات': 'fa-wheat-awn',
+                        'البروتين': 'fa-dumbbell',
+                        'الدهون': 'fa-droplet'
+                    };
+
+                    let html = '<div class="nutritional-info">';
+                    nutrients.forEach(nutrient => {
+                        const parts = nutrient.split(':');
+                        if (parts.length === 2) {
+                            const label = parts[0].trim();
+                            const value = parts[1].trim();
+                            const icon = iconMap[label] || 'fa-question-circle';
+                            html += `
+                                <div class="nutrient">
+                                    <i class="fas ${icon}"></i>
+                                    <span class="value">${value}</span>
+                                    <span class="label">${label}</span>
+                                </div>
+                            `;
+                        }
+                    });
+                    html += '</div>';
+                    return html;
+                }
+
+                function displayProducts() {
+                    menuSectionsContainer.innerHTML = '';
+                    const searchTermLower = currentSearchTerm.toLowerCase();
+                    const filteredProducts = productsData.filter(p => 
+                        (currentActiveFilter === 'all' || p.category === currentActiveFilter) &&
+                        (searchTermLower === '' || p.name.toLowerCase().includes(searchTermLower) || (p.description && p.description.toLowerCase().includes(searchTermLower)))
+                    );
+
+                    if (filteredProducts.length === 0) {
+                        menuSectionsContainer.innerHTML = `<p style="text-align:center; padding: 20px; color: var(--text-color-secondary);">لا توجد منتجات تطابق بحثك.</p>`;
+                        return;
+                    }
+
+                    const productsByCategory = filteredProducts.reduce((acc, product) => {
+                        (acc[product.category] = acc[product.category] || []).push(product);
+                        return acc;
+                    }, {});
+
+                    const displayOrder = currentActiveFilter === 'all' ? [...new Set(productsData.map(p => p.category))] : [currentActiveFilter];
+
+                    displayOrder.forEach(category => {
+                        if (!productsByCategory[category]) return;
+                        const categorySection = document.createElement('div');
+                        categorySection.className = 'category-section';
+                        categorySection.innerHTML = `<h2 class="category-title">${category}</h2>`;
+                        const productsGrid = document.createElement('div');
+                        productsGrid.className = 'products-grid';
+                        productsByCategory[category].forEach(product => {
+                            const productCard = document.createElement('div');
+                            productCard.className = 'product-card';
+                            
+                            const nutritionalHTML = createNutritionalHTML(product.description);
+                            const actionButtonHTML = (product.customizations && product.customizations.length > 0)
+                                ? `<button class="customize-btn" onclick="openCustomizationModal('${product.id}')"><i class="fas fa-cog"></i> تخصيص</button>`
+                                : `<button class="direct-add-btn" onclick="addDirectToCart('${product.id}')"><i class="fas fa-cart-plus"></i> إضافة</button>`;
+
+                            productCard.innerHTML = `
+                                <img src="${product.image || 'https://via.placeholder.com/350x200.png?text=No+Image'}" alt="${product.name}" loading="lazy" onerror="this.onerror=null;this.src='https://via.placeholder.com/350x200.png?text=No+Image';">
+                                <div class="product-info">
+                                    <h3>${product.name}</h3>
+                                    ${nutritionalHTML}
+                                </div>
+                                <div class="card-action">
+                                    ${actionButtonHTML}
+                                </div>`;
+                            productsGrid.appendChild(productCard);
+                        });
+                        categorySection.appendChild(productsGrid);
+                        menuSectionsContainer.appendChild(categorySection);
+                    });
+                }
+
+                window.addDirectToCart = function(productId) {
+                    const product = productsData.find(p => p.id === productId);
+                    if (!product) return;
+                    const existingItem = cart.find(item => item.cartItemId === productId);
+                    if (existingItem) {
+                        existingItem.quantity++;
+                    } else {
+                        cart.push({ cartItemId: productId, id: productId, name: product.name, quantity: 1, customizations: [], image: product.image });
+                    }
+                    updateCartBadge();
+                    saveCartToLocalStorage();
+                    showNotification(`"${product.name}" أضيف إلى طلباتك.`);
+                };
+                
+                window.openCustomizationModal = function(productId) {
+                    currentProductInModalObject = productsData.find(p => p.id === productId);
+                    if (!currentProductInModalObject) return;
+                    modalProductImage.src = currentProductInModalObject.image;
+                    modalProductTitle.textContent = currentProductInModalObject.name;
+                    modalQuantityInput.value = 1;
+                    modalCustomizationsContainer.innerHTML = '';
+                    if (currentProductInModalObject.customizations) {
+                        currentProductInModalObject.customizations.forEach((group, groupIndex) => {
+                            const fieldset = document.createElement('fieldset');
+                            fieldset.className = 'option-group';
+                            fieldset.innerHTML = `<legend>${group.groupName}${group.required ? ' (مطلوب)' : ''}</legend>`;
+                            group.options.forEach((opt, optIndex) => {
+                                const optionDiv = document.createElement('div');
+                                optionDiv.className = 'option-item';
+                                const inputId = `modal-opt-${productId}-${groupIndex}-${optIndex}`;
+                                optionDiv.innerHTML = `
+                                    <input type="${group.type}" id="${inputId}" name="modal-${productId}-${group.name}" value="${opt.value}">
+                                    <label for="${inputId}">${opt.text}</label>`;
+                                const input = optionDiv.querySelector('input');
+                                if (group.type === 'radio' && group.required && optIndex === 0) input.checked = true;
+                                fieldset.appendChild(optionDiv);
+                            });
+                            modalCustomizationsContainer.appendChild(fieldset);
+                        });
+                    }
+                    modalOverlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                }
+                
+                const closeCustomizationModal = () => {
+                    modalOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                };
+
+                modalAddToCartBtn.onclick = function() {
+                    if (!currentProductInModalObject) return;
+                    const product = currentProductInModalObject;
+                    if (product.customizations) {
+                        for (const group of product.customizations) {
+                            if (group.required && !modalCustomizationsContainer.querySelector(`input[name="modal-${product.id}-${group.name}"]:checked`)) {
+                                return alert(`الرجاء اختيار خيار من "${group.groupName}".`);
+                            }
+                        }
+                    }
+                    let selectedCustomizations = [], cartItemIdSuffix = '';
+                    modalCustomizationsContainer.querySelectorAll('input:checked').forEach(input => {
+                        cartItemIdSuffix += `-${input.value}`;
+                        selectedCustomizations.push({ text: input.labels[0].textContent });
+                    });
+                    const cartItemId = `${product.id}${cartItemIdSuffix}`;
+                    const existingItem = cart.find(item => item.cartItemId === cartItemId);
+                    const quantity = parseInt(modalQuantityInput.value);
+                    if (existingItem) {
+                        existingItem.quantity += quantity;
+                    } else {
+                        cart.push({ cartItemId, id: product.id, name: product.name, quantity, customizations: selectedCustomizations, image: product.image });
+                    }
+                    updateCartBadge();
+                    saveCartToLocalStorage();
+                    showNotification(`"${product.name}" أضيف إلى طلباتك.`);
+                    closeCustomizationModal();
+                };
+
+                function showNotification(message) {
+                    notificationMessage.textContent = message;
+                    notificationToast.classList.add('show');
+                    clearTimeout(notificationTimeout);
+                    notificationTimeout = setTimeout(() => notificationToast.classList.remove('show'), 3000);
+                }
+
+                function updateCartBadge() {
+                    let totalItemsCount = 0;
+                    cart.forEach(item => {
+                        totalItemsCount += item.quantity;
+                    });
+                    cartCountBadge.textContent = totalItemsCount;
+                }
+
+                function showAdPopupOnce() {
+                    if (!localStorage.getItem(AD_POPUP_STORAGE_KEY)) {
+                        adPopupModal.style.display = 'flex';
+                        localStorage.setItem(AD_POPUP_STORAGE_KEY, 'true');
+                    }
+                }
+
+                function setupUIListeners() {
+                    modalCloseBtn.onclick = closeCustomizationModal;
+                    modalOverlay.onclick = (e) => { if (e.target === modalOverlay) closeCustomizationModal(); };
+                    searchInput.oninput = (e) => { currentSearchTerm = e.target.value; displayProducts(); };
+                    toggleViewBtn.onclick = function() {
+                        isCompactView = !isCompactView;
+                        saveViewPreference();
+                        loadViewPreference();
+                    };
+                    adPopupCloseBtn.onclick = () => {
+                        adPopupModal.style.display = 'none';
+                    };
+                }
+
+                // Initial Load
+                loadCartFromLocalStorage();
+                loadViewPreference();
+                displayFilterButtons();
+                displayProducts();
+                updateCartBadge();
+                setupUIListeners();
+                showAdPopupOnce();
+                document.getElementById('current-year').textContent = new Date().getFullYear();
+
+            } catch (error) {
+                console.error("A critical error occurred during initialization:", error);
+                const menuContainer = document.getElementById('menu-sections');
+                if (menuContainer) {
+                    menuContainer.innerHTML = `<p style="text-align:center; color: red; font-weight: bold; padding: 20px;">عفواً، حدث خطأ فني أثناء تحميل القائمة. يرجى محاولة تحديث الصفحة.</p>`;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

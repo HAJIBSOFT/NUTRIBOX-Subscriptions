@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>بوابة المشتركين - مطعم صمام</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --surface-color: #ffffff;
+            --primary-color: #2ecc71;
+            --primary-color-dark: #b85e1a;
+            --text-color-primary: #3d352e;
+            --text-color-secondary: #7a6a5d;
+            --border-color: #e0d5c1;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+            --error-color: #e74c3c;
+            --font-family: 'Tajawal', sans-serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-color-primary);
+            line-height: 1.7;
+        }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .navbar {
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 12px 20px;
+            box-shadow: 0 2px 10px var(--shadow-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-brand { font-size: 1.8em; font-weight: 800; color: var(--primary-color); text-decoration: none; }
+        .back-to-menu-btn {
+            color: var(--primary-color); text-decoration: none; font-weight: 500;
+            padding: 8px 15px; border: 1px solid var(--primary-color); border-radius: 20px;
+            transition: all 0.3s;
+        }
+        .back-to-menu-btn:hover { background-color: var(--primary-color); color: white; }
+
+        .main-container {
+            background: #fffefb; padding: 30px; border-radius: 15px;
+            box-shadow: 0 5px 25px var(--shadow-color); margin-top: 40px; min-height: 400px;
+        }
+
+        /* Login View */
+        #login-view h2 { text-align: center; color: var(--primary-color); margin-bottom: 15px; }
+        #login-view p { text-align: center; color: var(--text-color-secondary); margin-bottom: 25px; }
+        #subscription-id-input {
+            width: 100%; padding: 12px; font-size: 1.2em; text-align: center;
+            letter-spacing: 2px; border: 1px solid var(--border-color); border-radius: 8px; font-family: var(--font-family);
+        }
+        #login-btn {
+            width: 100%; background-color: var(--primary-color); color: white; border: none; padding: 14px 20px;
+            font-size: 1.1em; font-weight: 700; border-radius: 8px; transition: background-color 0.3s;
+            cursor: pointer; margin-top: 15px;
+        }
+        #login-btn:hover { background-color: var(--primary-color-dark); }
+        #login-feedback { text-align: center; margin-top: 15px; font-weight: 500; }
+        #login-btn:disabled { background-color: #95a5a6; cursor: not-allowed; }
+
+        /* Dashboard View */
+        #dashboard-view .dashboard-header {
+            text-align: center; padding-bottom: 15px; margin-bottom: 20px;
+            border-bottom: 2px solid var(--primary-color); position: relative;
+        }
+        .logout-btn {
+            position: absolute; top: 0; left: 0; background: none; border: 1px solid var(--error-color);
+            color: var(--error-color); padding: 5px 10px; border-radius: 20px; font-size: 0.8em;
+            cursor: pointer; transition: all 0.3s;
+        }
+        .logout-btn:hover { background-color: var(--error-color); color: white; }
+        #welcome-message { font-size: 1.8em; font-weight: 800; }
+        #remaining-meals-display { font-size: 1.1em; color: var(--text-color-secondary); }
+        .section-title { font-size: 1.4em; color: var(--primary-color); margin: 25px 0 15px 0; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
+
+        /* Cart List with Customizations */
+        #cart-items-list { list-style-type: none; padding: 0; }
+        #cart-items-list li {
+            padding: 12px 5px; border-bottom: 1px dashed #ddd; display: flex;
+            justify-content: space-between; align-items: flex-start; gap: 15px;
+        }
+        .cart-item-details { flex-grow: 1; }
+        .item-name { font-weight: 700; }
+        .item-quantity { color: var(--text-color-secondary); font-size: 0.9em; }
+        .item-customizations {
+            font-size: 0.85em;
+            color: var(--text-color-secondary);
+            margin-top: 5px;
+            padding-right: 15px;
+        }
+        .item-customizations div { line-height: 1.4; }
+        .cart-item-actions { text-align: left; }
+        .remove-item-btn {
+            background-color: var(--error-color); color: white; border: none;
+            width: 28px; height: 28px; border-radius: 50%;
+            font-size: 1em; font-weight: bold; cursor: pointer;
+            line-height: 28px; text-align: center; flex-shrink: 0;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .remove-item-btn:hover { background-color: #c0392b; transform: scale(1.1); }
+        #empty-cart-message { text-align: center; color: var(--text-color-secondary); padding: 20px; }
+        
+        /* Delivery Options & Notes */
+        .order-options {
+            padding: 15px;
+            background-color: #fcf8f2;
+            border: 1px dashed var(--border-color);
+            border-radius: 8px;
+        }
+        .delivery-options { text-align: center; margin-bottom: 15px; }
+        .delivery-options label { margin: 0 10px; font-weight: 500; cursor: pointer; user-select: none; }
+        #order-notes {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            min-height: 80px;
+            font-family: var(--font-family);
+            font-size: 1em;
+            margin-top: 15px;
+        }
+        #location-section {
+            margin-top: 15px;
+        }
+        #delivery-info-display, #location-feedback { font-size: 1em; margin-bottom: 10px; }
+        #change-location-btn {
+            background-color: #555; color: white; border: none; padding: 10px 20px;
+            border-radius: 8px; cursor: pointer; font-family: var(--font-family); font-size: 1em;
+        }
+        #order-summary { background-color: #f9f4ec; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center; }
+        #order-summary .summary-line { font-size: 1.3em; font-weight: 700; }
+        #confirm-order-btn {
+            width: 100%; background-color: #28a745; color: white; border: none; padding: 14px 20px;
+            font-size: 1.1em; font-weight: 700; border-radius: 8px; transition: all 0.3s;
+            cursor: pointer; margin-top: 15px;
+        }
+        #confirm-order-btn:hover { background-color: #218838; }
+        #confirm-order-btn:disabled { background-color: #95a5a6; cursor: not-allowed; }
+        
+        /* Map Modal */
+        .map-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; }
+        .map-modal-content { background-color: white; padding: 20px; border-radius: 12px; width: 90%; max-width: 700px; }
+        .map-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .map-modal-header h3 { color: var(--primary-color); }
+        .map-modal-close-btn { background: none; border: none; font-size: 2.5em; color: #aaa; cursor: pointer; }
+        #map { height: 400px; width: 100%; border-radius: 8px; }
+        #confirm-location-btn { background-color: var(--primary-color); color: white; border: none; padding: 12px 30px; font-family: var(--font-family); font-size: 1.1em; border-radius: 8px; cursor: pointer; text-align: center; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">NUTRI BOX</a>
+        <a href="index.html" class="back-to-menu-btn">
+            <i class="fas fa-arrow-left"></i> 
+        </a>
+    </nav>
+    <div class="container">
+        <div class="main-container">
+            <!-- Login View -->
+            <div id="login-view">
+                <h2>HAJIB SOFT</h2>
+                <p id="login-prompt">الرجاء إدخال رمز الاشتراك الخاص بك للمتابعة.</p>
+                <input type="text" id="subscription-id-input" placeholder="أدخل رمز الاشتراك هنا">
+                <button id="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> دخول
+                </button>
+                <p id="login-feedback"></p>
+            </div>
+
+            <!-- Dashboard View -->
+            <div id="dashboard-view" style="display: none;">
+                <div class="dashboard-header">
+                    <button id="logout-btn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> خروج</button>
+                    <h2 id="welcome-message"></h2>
+                    <p id="remaining-meals-display"></p>
+                </div>
+
+                <h3 class="section-title">طلباتك في السلة</h3>
+                <div id="cart-container">
+                    <ul id="cart-items-list"></ul>
+                    <p id="empty-cart-message">سلة الطلبات فارغة. <a href="index.html" style="color: var(--primary-color);">ابدأ باختيار وجباتك</a></p>
+                </div>
+
+                <h3 class="section-title">خيارات الطلب</h3>
+                <div class="order-options">
+                    <div class="delivery-options">
+                        <label><input type="radio" name="deliveryType" value="pickup" checked> استلام من المطعم</label>
+                        <label><input type="radio" name="deliveryType" value="delivery"> توصيل</label>
+                    </div>
+                    
+                    <div id="location-section" style="display: none;">
+                        <p id="delivery-info-display"></p>
+                        <button id="change-location-btn">📍 تغيير موقع التوصيل</button>
+                        <p id="location-feedback"></p>
+                    </div>
+
+                    <textarea id="order-notes" placeholder="هل لديك ملاحظات على الطلب؟ (اختياري)"></textarea>
+                </div>
+                
+                <div id="order-summary">
+                    <div class="summary-line" id="summary-line"></div>
+                    <button id="confirm-order-btn" disabled>
+                        <i class="fas fa-check-circle"></i> تأكيد وإرسال الطلب
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Map Modal -->
+    <div class="map-modal-overlay" id="map-modal-overlay">
+        <div class="map-modal-content">
+            <div class="map-modal-header">
+                <h3>اختر موقع التوصيل</h3>
+                <button class="map-modal-close-btn" id="map-modal-close-btn">&times;</button>
+            </div>
+            <div id="map"></div>
+            <button id="confirm-location-btn">تأكيد الموقع</button>
+        </div>
+    </div>
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script>
+        const googleWebAppUrl = 'https://script.google.com/macros/s/AKfycbyQrWgr8c27nvo5Ipxbs3jg1OJc-4zxdNtRbE8uX56kvfWILBokNYajE9J3v3uV45w8tA/exec'; 
+        const CART_STORAGE_KEY = 'restaurantAppCart_vFinalCompleteWithFooterFixed';
+        const SUBSCRIPTION_ID_STORAGE_KEY = 'samamSubscriberId_v1';
+        
+        const deliveryZoneCoords = [
+            [21.5073, 39.1554], [21.5178, 39.1760],
+            [21.5034, 39.1895], [21.4930, 39.1687]
+        ];
+
+        let currentUserData = null;
+        let cart = [];
+        let newCustomerLocationLink = null;
+        let currentDeliveryType = 'pickup';
+        let map, marker, deliveryPolygon;
+
+        function saveCartToLocalStorage() { localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart)); }
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            saveCartToLocalStorage();
+            renderCart();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+        });
+        
+        function initializeApp() {
+            if (googleWebAppUrl === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
+                alert('الرجاء تحديث رابط الـ Web App في ملف checkout.html.');
+                return;
+            }
+
+            const savedSubscriptionId = localStorage.getItem(SUBSCRIPTION_ID_STORAGE_KEY);
+            const loginView = document.getElementById('login-view');
+            const loginBtn = document.getElementById('login-btn');
+            const subscriptionIdInput = document.getElementById('subscription-id-input');
+
+            loginBtn.addEventListener('click', () => handleLogin());
+            subscriptionIdInput.addEventListener('keyup', (event) => {
+                if (event.key === 'Enter') handleLogin();
+            });
+            document.getElementById('logout-btn').addEventListener('click', handleLogout);
+            document.querySelectorAll('input[name="deliveryType"]').forEach(radio => {
+                radio.addEventListener('change', handleDeliveryTypeChange);
+            });
+
+            if (savedSubscriptionId) {
+                loginView.querySelector('#login-prompt').textContent = 'لديك اشتراك فعال على هذا الجهاز - جاري تسجيل الدخول ....';
+                subscriptionIdInput.style.display = 'none';
+                loginBtn.style.display = 'none';
+                handleLogin(savedSubscriptionId);
+            }
+        }
+        
+        function handleDeliveryTypeChange(event) {
+            currentDeliveryType = event.target.value;
+            const locationSection = document.getElementById('location-section');
+            locationSection.style.display = (currentDeliveryType === 'delivery') ? 'block' : 'none';
+        }
+
+        async function handleLogin(idFromStorage = null) {
+            const subscriptionId = idFromStorage || document.getElementById('subscription-id-input').value.trim();
+            const loginBtn = document.getElementById('login-btn');
+            const loginFeedback = document.getElementById('login-feedback');
+            
+            if (!subscriptionId) {
+                loginFeedback.textContent = 'الرجاء إدخال رمز الاشتراك.';
+                loginFeedback.style.color = 'red';
+                return;
+            }
+
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحقق...';
+            loginFeedback.textContent = '';
+
+            try {
+                const response = await fetch(`${googleWebAppUrl}?action=getUserData&id=${subscriptionId}`);
+                if (!response.ok) throw new Error('Network response was not ok.');
+                const result = await response.json();
+
+                if (result.status === "success") {
+                    currentUserData = result.data;
+                    newCustomerLocationLink = currentUserData.locationLink;
+                    localStorage.setItem(SUBSCRIPTION_ID_STORAGE_KEY, subscriptionId);
+                    document.getElementById('login-view').style.display = 'none';
+                    document.getElementById('dashboard-view').style.display = 'block';
+                    renderDashboard();
+                } else {
+                    throw new Error(result.message || 'رمز الاشتراك غير صالح.');
+                }
+            } catch (error) {
+                if (idFromStorage) {
+                    localStorage.removeItem(SUBSCRIPTION_ID_STORAGE_KEY);
+                    document.getElementById('login-prompt').textContent = 'فشل تسجيل الدخول التلقائي. يرجى إدخال الرمز الصحيح.';
+                    document.getElementById('subscription-id-input').style.display = 'block';
+                    document.getElementById('login-btn').style.display = 'block';
+                }
+                loginFeedback.textContent = error.message;
+                loginFeedback.style.color = 'red';
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> دخول';
+            }
+        }
+
+        function handleLogout() {
+            if (confirm('هل أنت متأكد من رغبتك في تسجيل الخروج؟')) {
+                localStorage.removeItem(SUBSCRIPTION_ID_STORAGE_KEY);
+                window.location.reload();
+            }
+        }
+
+        function renderDashboard() {
+            document.getElementById('welcome-message').textContent = `أهلاً بك، ${currentUserData.name}`;
+            document.getElementById('remaining-meals-display').textContent = `رصيدك الحالي: ${currentUserData.remainingMeals} وجبة`;
+            document.getElementById('delivery-info-display').textContent = `العنوان: ${currentUserData.address || 'لا يوجد عنوان محفوظ'}`;
+            if (newCustomerLocationLink) {
+                document.getElementById('location-feedback').innerHTML = `✅ سيتم التوصيل لاخر موقع توصيل. <a href="${newCustomerLocationLink}" target="_blank">عرض على الخريطة</a>`;
+            } else {
+                document.getElementById('location-feedback').textContent = 'الرجاء تحديد موقع التوصيل على الخريطة.';
+            }
+            renderCart();
+        }
+
+        function renderCart() {
+            const storedCart = localStorage.getItem(CART_STORAGE_KEY);
+            cart = storedCart ? JSON.parse(storedCart) : [];
+            const cartListEl = document.getElementById('cart-items-list');
+            const emptyCartMsg = document.getElementById('empty-cart-message');
+            cartListEl.innerHTML = '';
+
+            if (cart.length === 0) {
+                emptyCartMsg.style.display = 'block';
+            } else {
+                emptyCartMsg.style.display = 'none';
+                cart.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    let customizationsHTML = '';
+                    if (item.customizations && item.customizations.length > 0) {
+                        const customizationsList = item.customizations
+                            .map(c => `<div>- ${c.text}</div>`)
+                            .join('');
+                        customizationsHTML = `<div class="item-customizations">${customizationsList}</div>`;
+                    }
+
+                    li.innerHTML = `
+                        <div class="cart-item-details">
+                            <div>
+                                <span class="item-name">${item.name}</span>
+                                <span class="item-quantity">(الكمية: ${item.quantity})</span>
+                            </div>
+                            ${customizationsHTML}
+                        </div>
+                        <div class="cart-item-actions">
+                            <button class="remove-item-btn" onclick="removeFromCart(${index})" title="إزالة العنصر">&times;</button>
+                        </div>
+                    `;
+                    cartListEl.appendChild(li);
+                });
+            }
+            validateOrder();
+        }
+        
+        function validateOrder() {
+            const mealsInCart = cart.reduce((total, item) => total + item.quantity, 0);
+            const summaryLine = document.getElementById('summary-line');
+            const confirmBtn = document.getElementById('confirm-order-btn');
+
+            if (mealsInCart === 0) {
+                summaryLine.textContent = 'سلة الطلبات فارغة';
+                confirmBtn.disabled = true;
+            } else {
+                summaryLine.innerHTML = `سيتم خصم <strong>${mealsInCart}</strong> وجبة من رصيدك.`;
+                if (currentUserData.remainingMeals >= mealsInCart) {
+                    confirmBtn.disabled = false;
+                    confirmBtn.innerHTML = '<i class="fas fa-check-circle"></i> تأكيد وإرسال الطلب';
+                } else {
+                    confirmBtn.disabled = true;
+                    confirmBtn.innerHTML = 'رصيدك من الوجبات غير كافٍ!';
+                }
+            }
+        }
+
+        document.getElementById('confirm-order-btn').addEventListener('click', async () => {
+            if (currentDeliveryType === 'delivery' && !newCustomerLocationLink) {
+                alert("الرجاء تحديد موقع التوصيل لإتمام طلب التوصيل.");
+                return;
+            }
+
+            const confirmBtn = document.getElementById('confirm-order-btn');
+            const originalBtnHTML = confirmBtn.innerHTML;
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري إرسال الطلب...';
+
+            let orderDetailsText = '';
+            cart.forEach(item => {
+                orderDetailsText += `- ${item.name} (الكمية: ${item.quantity})\n`;
+                if (item.customizations && item.customizations.length > 0) {
+                    item.customizations.forEach(c => {
+                        orderDetailsText += `  • ${c.text}\n`;
+                    });
+                }
+            });
+
+            const notes = document.getElementById('order-notes').value.trim();
+            orderDetailsText += '\n---\n';
+            orderDetailsText += `🔹 نوع الطلب: ${currentDeliveryType === 'delivery' ? 'توصيل' : 'استلام من المطعم'}\n`;
+            if (notes) {
+                orderDetailsText += `🔹 ملاحظات: ${notes}`;
+            }
+
+            const mealsDeducted = cart.reduce((total, item) => total + item.quantity, 0);
+            const payload = {
+                action: "placeOrder",
+                subscriptionId: currentUserData.id,
+                mealsDeducted: mealsDeducted,
+                orderDetails: orderDetailsText.trim(),
+                newLocation: { link: newCustomerLocationLink }
+            };
+
+            try {
+                const response = await fetch(googleWebAppUrl, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) throw new Error(`Network error: ${response.statusText}`);
+                const result = await response.json(); 
+
+                if (result.status === "success") {
+                    alert(`تم استلام طلبك بنجاح! سيتم تحديث الصفحة الآن.`);
+                    localStorage.removeItem(CART_STORAGE_KEY);
+                    window.location.reload();
+                } else {
+                    throw new Error(result.message || 'حدث خطأ غير معروف من الخادم.');
+                }
+            } catch (error) {
+                alert(`عفواً، حدث خطأ أثناء إرسال الطلب: ${error.message}`);
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = originalBtnHTML;
+            }
+        });
+
+        // Map Logic
+        const mapModalOverlay = document.getElementById('map-modal-overlay');
+        document.getElementById('change-location-btn').onclick = () => { mapModalOverlay.style.display = 'flex'; setTimeout(initMap, 10); };
+        document.getElementById('map-modal-close-btn').onclick = () => { mapModalOverlay.style.display = 'none'; };
+        document.getElementById('confirm-location-btn').onclick = () => {
+            const coords = marker.getLatLng();
+            if (isMarkerInsidePolygon && !isMarkerInsidePolygon(coords, deliveryZoneCoords)) {
+                alert("عفواً، الموقع الذي اخترته يقع خارج نطاق التوصيل.");
+                return;
+            }
+            const { lat, lng } = coords;
+            newCustomerLocationLink = `https://www.google.com/maps?q=${lat},${lng}`;
+            document.getElementById('location-feedback').innerHTML = `✅ تم تحديث موقع التوصيل. <a href="${newCustomerLocationLink}" target="_blank">عرض الموقع</a>`;
+            mapModalOverlay.style.display = 'none';
+        };
+
+        function initMap() {
+            if (map) { map.invalidateSize(); return; }
+            map = L.map('map');
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            if (deliveryZoneCoords && deliveryZoneCoords.length > 0) {
+                deliveryPolygon = L.polygon(deliveryZoneCoords, { color: '#2ecc71', fillColor: '#f8f9fa', fillOpacity: 0.3 }).addTo(map);
+                map.fitBounds(deliveryPolygon.getBounds());
+                marker = L.marker(deliveryPolygon.getBounds().getCenter(), { draggable: true }).addTo(map);
+            } else {
+                map.setView([21.543333, 39.172778], 13);
+                marker = L.marker([21.543333, 39.172778], { draggable: true }).addTo(map);
+            }
+            map.on('click', (e) => marker.setLatLng(e.latlng));
+        }
+
+        function isMarkerInsidePolygon(markerLatLng, polyCoords) {
+            if (!polyCoords || polyCoords.length === 0) return true;
+            const x = markerLatLng.lat, y = markerLatLng.lng;
+            let inside = false;
+            for (let i = 0, j = polyCoords.length - 1; i < polyCoords.length; j = i++) {
+                const xi = polyCoords[i][0], yi = polyCoords[i][1];
+                const xj = polyCoords[j][0], yj = polyCoords[j][1];
+                const intersect = ((yi > y) != (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+                if (intersect) inside = !inside;
+            }
+            return inside;
+        }
+    </script>
+</body>
+</html>

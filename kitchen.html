@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم المطبخ - صمام</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #d87525;
+            --success-color: #28a745;
+            --text-primary: #3d352e;
+            --bg-main: #f0e6d8;
+            --bg-column: #e0d5c1;
+            --surface-card: #fffefb;
+            --border-color: #d1c5b0;
+            --font-family: 'Tajawal', sans-serif;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            margin: 0;
+            overflow-y: scroll;
+        }
+        .kitchen-wrapper { padding: 15px; }
+
+        /* --- Header Controls --- */
+        .controls-header {
+            background-color: var(--surface-card);
+            padding: 15px; border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            display: flex; flex-wrap: wrap;
+            justify-content: space-between; align-items: center;
+            gap: 15px; margin-bottom: 20px;
+        }
+        .search-container { position: relative; flex: 1 1 300px; }
+        #search-input {
+            width: 100%; padding: 10px 40px 10px 15px;
+            border: 1px solid var(--border-color); border-radius: 8px; font-size: 1em;
+        }
+        .search-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #aaa; }
+        .header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        #live-indicator { display: flex; align-items: center; gap: 8px; color: var(--success-color); font-weight: 500; margin-left: 10px; }
+        #live-indicator .dot { width: 10px; height: 10px; background-color: var(--success-color); border-radius: 50%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        
+        .header-btn {
+            background: none; border: 1px solid var(--primary-color); color: var(--primary-color);
+            padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s;
+            font-family: var(--font-family); font-size: 0.9em; display: flex; align-items: center; gap: 6px;
+        }
+        .header-btn:hover { background-color: var(--primary-color); color: white; }
+        #refresh-btn.loading .fa-sync { animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* --- Kanban Board Layout --- */
+        .kanban-board {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            overflow-x: auto;
+            padding-bottom: 20px;
+        }
+        .kanban-column {
+            background-color: var(--bg-column);
+            border-radius: 12px;
+            padding: 15px;
+            width: 400px; /* Fixed width */
+            flex-shrink: 0;
+            transition: width 0.4s ease, opacity 0.4s ease, padding 0.4s ease; /* Animation */
+        }
+        .kanban-column-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding-bottom: 10px; margin-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+        .kanban-column-header h2 { font-size: 1.4em; margin: 0; }
+        .kanban-column-header .count {
+            background-color: var(--text-primary); color: white;
+            padding: 2px 10px; border-radius: 12px; font-size: 0.9em;
+        }
+        .cards-container { display: flex; flex-direction: column; gap: 15px; min-height: 200px; }
+        .empty-column-msg { text-align: center; color: #777; padding: 30px; }
+
+        /* ✨ New class to hide the completed column ✨ */
+        .kanban-board.hide-completed #completed-column {
+            width: 0;
+            padding: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+
+        /* --- Order Card Design --- */
+        .order-card {
+            background-color: var(--surface-card);
+            border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            border-right: 5px solid var(--primary-color);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .order-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .order-card[data-status="Completed"] { border-right-color: var(--success-color); }
+        .order-card-header { padding: 12px 15px; border-bottom: 1px solid #eee; }
+        .order-card-header h3 { font-size: 1.2em; margin: 0; display: flex; justify-content: space-between; }
+        .order-card-header .name { flex-grow: 1; }
+        .order-card-header .time { font-size: 0.8em; font-weight: normal; color: #777; }
+        .order-card-header p { font-size: 0.8em; color: #999; margin: 2px 0 0; }
+        .order-card-body { padding: 15px; font-size: 1.1em; line-height: 1.8; white-space: pre-wrap; }
+        .order-card-footer { padding: 0 15px 15px; text-align: left; }
+        .complete-btn {
+            width: 100%; background-color: var(--success-color); color: white;
+            border: none; padding: 10px; border-radius: 8px; cursor: pointer;
+            font-family: var(--font-family); font-size: 1em; transition: background-color 0.3s;
+        }
+        .complete-btn:hover { background-color: #218838; }
+        .complete-btn:disabled { background-color: #95a5a6; cursor: not-allowed; }
+        
+        @media (max-width: 850px) {
+            .kanban-board { flex-direction: column; align-items: stretch; gap: 25px; }
+            .kanban-column { width: 100% !important; } /* Override fixed width */
+            .kanban-board.hide-completed #completed-column { height: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="kitchen-wrapper">
+        <header class="controls-header">
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="ابحث بالاسم أو رمز الاشتراك...">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+            <div class="header-actions">
+                <div id="live-indicator">
+                    <div class="dot"></div>
+                    <span>تحديث مباشر</span>
+                </div>
+                <!-- ✨ New Button Here ✨ -->
+                <button id="toggle-completed-btn" class="header-btn">
+                    <i class="fas fa-eye-slash"></i>
+                    <span>إخفاء المكتمل</span>
+                </button>
+                <button id="refresh-btn" class="header-btn">
+                    <i class="fas fa-sync"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="kanban-board" id="kanban-board">
+            <!-- Column for New/Pending Orders -->
+            <section class="kanban-column" id="pending-column">
+                <div class="kanban-column-header">
+                    <h2><i class="fas fa-hourglass-half"></i> طلبات جديدة</h2>
+                    <span id="pending-count" class="count">0</span>
+                </div>
+                <div class="cards-container" id="pending-orders-container"></div>
+            </section>
+
+            <!-- Column for Completed Orders -->
+            <section class="kanban-column" id="completed-column">
+                <div class="kanban-column-header">
+                    <h2><i class="fas fa-check-double"></i> طلبات مكتملة</h2>
+                    <span id="completed-count" class="count">0</span>
+                </div>
+                <div class="cards-container" id="completed-orders-container"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Notification Sound -->
+    <audio id="notification-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3" preload="auto"></audio>
+
+    <script>
+        const googleWebAppUrl = 'https://script.google.com/macros/s/AKfycbyQrWgr8c27nvo5Ipxbs3jg1OJc-4zxdNtRbE8uX56kvfWILBokNYajE9J3v3uV45w8tA/exec';
+        const HIDE_COMPLETED_KEY = 'samamKitchenHideCompleted_v1';
+        
+        let allOrders = [];
+        let autoRefreshInterval;
+        let domElements = {}; // Object to cache DOM elements
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Cache all DOM elements at the start
+            domElements = {
+                searchInput: document.getElementById('search-input'),
+                refreshBtn: document.getElementById('refresh-btn'),
+                toggleBtn: document.getElementById('toggle-completed-btn'),
+                kanbanBoard: document.getElementById('kanban-board'),
+                pendingContainer: document.getElementById('pending-orders-container'),
+                completedContainer: document.getElementById('completed-orders-container'),
+                pendingCountEl: document.getElementById('pending-count'),
+                completedCountEl: document.getElementById('completed-count'),
+                notificationSound: document.getElementById('notification-sound')
+            };
+
+            if (googleWebAppUrl === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
+                domElements.pendingContainer.innerHTML = '<p class="empty-column-msg" style="color:red; font-weight:bold;">خطأ: لم يتم إعداد رابط الواجهة الخلفية.</p>';
+                return;
+            }
+
+            // --- Event Listeners ---
+            domElements.searchInput.addEventListener('input', renderAllOrders);
+            domElements.refreshBtn.addEventListener('click', fetchOrders);
+            domElements.toggleBtn.addEventListener('click', toggleCompletedVisibility);
+
+            // --- Initial Load ---
+            applyInitialSettings();
+            fetchOrders();
+            autoRefreshInterval = setInterval(fetchOrders, 45000);
+        });
+
+        // ✨ New function to apply saved settings on load ✨
+        function applyInitialSettings() {
+            const shouldHide = localStorage.getItem(HIDE_COMPLETED_KEY) === 'true';
+            if (shouldHide) {
+                domElements.kanbanBoard.classList.add('hide-completed');
+                updateToggleButton(true);
+            }
+        }
+        
+        // ✨ New function to handle the toggle button ✨
+        function toggleCompletedVisibility() {
+            const isHidden = domElements.kanbanBoard.classList.toggle('hide-completed');
+            updateToggleButton(isHidden);
+            localStorage.setItem(HIDE_COMPLETED_KEY, isHidden);
+        }
+
+        // ✨ New helper to update the button's text and icon ✨
+        function updateToggleButton(isHidden) {
+            const icon = domElements.toggleBtn.querySelector('i');
+            const text = domElements.toggleBtn.querySelector('span');
+            if (isHidden) {
+                icon.className = 'fas fa-eye';
+                text.textContent = 'إظهار المكتمل';
+            } else {
+                icon.className = 'fas fa-eye-slash';
+                text.textContent = 'إخفاء المكتمل';
+            }
+        }
+
+        async function fetchOrders() {
+            domElements.refreshBtn.classList.add('loading');
+            try {
+                const response = await fetch(`${googleWebAppUrl}?action=getOrders`);
+                if (!response.ok) throw new Error(`Network error: ${response.statusText}`);
+                const result = await response.json();
+                if (result.status !== 'success') throw new Error(result.message);
+
+                checkForNewOrders(result.data);
+                allOrders = result.data;
+                renderAllOrders();
+            } catch (error) {
+                console.error("Failed to fetch orders:", error);
+            } finally {
+                domElements.refreshBtn.classList.remove('loading');
+            }
+        }
+
+        function renderAllOrders() {
+            const searchTerm = domElements.searchInput.value.toLowerCase();
+            
+            domElements.pendingContainer.innerHTML = '';
+            domElements.completedContainer.innerHTML = '';
+
+            const filteredOrders = allOrders.filter(order => 
+                order.customerName.toLowerCase().includes(searchTerm) || 
+                order.subscriptionId.toLowerCase().includes(searchTerm)
+            );
+
+            let pendingCount = 0;
+            let completedCount = 0;
+
+            filteredOrders.forEach(order => {
+                const card = createOrderCard(order);
+                if (order.status === 'Completed') {
+                    domElements.completedContainer.prepend(card);
+                    completedCount++;
+                } else {
+                    domElements.pendingContainer.appendChild(card);
+                    pendingCount++;
+                }
+            });
+
+            domElements.pendingCountEl.textContent = pendingCount;
+            domElements.completedCountEl.textContent = completedCount;
+
+            if (pendingCount === 0) domElements.pendingContainer.innerHTML = '<p class="empty-column-msg">لا توجد طلبات جديدة حالياً.</p>';
+            if (completedCount === 0) domElements.completedContainer.innerHTML = '<p class="empty-column-msg">لا توجد طلبات مكتملة.</p>';
+            
+            document.querySelectorAll('.complete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => handleMarkComplete(e.currentTarget));
+            });
+        }
+        
+        function createOrderCard(order) {
+            const card = document.createElement('div');
+            card.className = 'order-card';
+            card.dataset.status = order.status;
+            card.dataset.orderId = order.orderId;
+
+            const timeAgo = calculateTimeAgo(order.timestamp);
+
+            card.innerHTML = `
+                <div class="order-card-header">
+                    <h3>
+                        <span class="name">${order.customerName}</span>
+                        <span class="time" title="${new Date(order.timestamp).toLocaleString()}">${timeAgo}</span>
+                    </h3>
+                    <p>${order.subscriptionId} / #${order.orderId.slice(-4)}</p>
+                </div>
+                <div class="order-card-body">${order.details}</div>
+                ${order.status !== 'Completed' ? `
+                <div class="order-card-footer">
+                    <button class="complete-btn" data-order-id="${order.orderId}">
+                        <i class="fas fa-check"></i> اكتمال الطلب
+                    </button>
+                </div>` : ''}
+            `;
+            return card;
+        }
+
+        async function handleMarkComplete(button) {
+            const orderId = button.dataset.orderId;
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            try {
+                await fetch(googleWebAppUrl, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: "markOrderComplete", orderId: orderId })
+                });
+
+                const cardElement = document.querySelector(`.order-card[data-order-id="${orderId}"]`);
+                if (cardElement) {
+                    cardElement.style.transition = 'opacity 0.5s ease';
+                    cardElement.style.opacity = '0';
+                }
+
+                setTimeout(() => {
+                    const orderToUpdate = allOrders.find(o => o.orderId === orderId);
+                    if (orderToUpdate) orderToUpdate.status = 'Completed';
+                    renderAllOrders();
+                }, 500);
+
+            } catch (error) {
+                alert('فشل في تحديث الطلب. حاول مرة أخرى.');
+                button.disabled = false;
+                button.innerHTML = '<i class="fas fa-check"></i> اكتمال الطلب';
+            }
+        }
+
+        function checkForNewOrders(newOrders) {
+            const currentPendingIds = allOrders
+                .filter(o => o.status !== 'Completed')
+                .map(o => o.orderId);
+
+            const hasNewOrder = newOrders.some(newOrder => 
+                newOrder.status !== 'Completed' && !currentPendingIds.includes(newOrder.orderId)
+            );
+
+            if (hasNewOrder) {
+                playNotificationSound();
+            }
+        }
+
+        function playNotificationSound() {
+            domElements.notificationSound.currentTime = 0;
+            domElements.notificationSound.play().catch(error => {
+                console.log("Audio playback was prevented by the browser.");
+            });
+        }
+
+        function calculateTimeAgo(timestamp) {
+            const diffMinutes = Math.round((new Date() - new Date(timestamp)) / 60000);
+            if (diffMinutes < 1) return "الآن";
+            if (diffMinutes < 60) return `منذ ${diffMinutes} د`;
+            const diffHours = Math.round(diffMinutes / 60);
+            if (diffHours < 24) return `منذ ${diffHours} س`;
+            return new Date(timestamp).toLocaleDateString('ar-EG');
+        }
+    </script>
+</body>
+</html>

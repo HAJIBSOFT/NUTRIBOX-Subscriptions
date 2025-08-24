@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #d87525;
+            --primary-color-dark: #b85e1a;
+            --text-color-primary: #3d352e;
+            --text-color-secondary: #7a6a5d;
+            --bg-light: #fdfaf5;
+            --border-color: #e0d5c1;
+            --sidebar-bg: #3d352e;
+            --sidebar-text: #f5eadd;
+            --success-color: #28a745;
+            --font-family: 'Tajawal', sans-serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-light);
+            color: var(--text-color-primary);
+        }
+        .admin-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            transition: margin-right 0.3s ease;
+        }
+        .sidebar-header { text-align: center; margin-bottom: 30px; }
+        .sidebar-header h2 { color: var(--primary-color); font-size: 1.8em; }
+        .sidebar-actions button {
+            display: block; width: 100%; background-color: var(--primary-color);
+            color: white; border: none; padding: 12px; font-size: 1.1em;
+            border-radius: 8px; cursor: pointer; transition: background-color 0.3s;
+            font-family: var(--font-family); margin-bottom: 15px;
+        }
+        .sidebar-actions button:hover { background-color: var(--primary-color-dark); }
+        .stats-cards { margin-top: auto; }
+        .stat-card { background-color: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; margin-bottom: 10px; text-align: center; }
+        .stat-card h4 { color: #f5eadd; font-size: 1.1em; margin-bottom: 5px; }
+        .stat-card p { color: var(--primary-color); font-size: 1.5em; font-weight: bold; }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+            overflow-x: auto;
+        }
+        .main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .main-header h1 { font-size: 2.2em; }
+        .mobile-menu-toggle { display: none; background: none; border: none; font-size: 1.8em; cursor: pointer; color: var(--text-color-primary); }
+
+        .table-container { background-color: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; text-align: right; }
+        th, td { padding: 15px 20px; }
+        thead { background-color: #f7f3ed; }
+        th { font-weight: 700; color: var(--text-color-primary); }
+        tbody tr:not(:last-child) { border-bottom: 1px solid var(--border-color); }
+        tbody tr:hover { background-color: #fcf8f2; }
+        .id-cell { display: flex; align-items: center; }
+        .copy-btn { background: none; border: none; color: var(--text-color-secondary); cursor: pointer; margin-right: 8px; font-size: 1em; }
+        .copy-btn:hover { color: var(--primary-color); }
+        .action-btn {
+            background-color: var(--success-color); color: white; border: none; padding: 6px 12px;
+            border-radius: 6px; cursor: pointer; font-size: 0.9em;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.6); z-index: 1000;
+            justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background-color: white; padding: 30px; border-radius: 12px;
+            width: 90%; max-width: 500px; position: relative;
+        }
+        .modal-close-btn {
+            position: absolute; top: 10px; left: 10px; background: none; border: none;
+            font-size: 2em; color: #aaa; cursor: pointer;
+        }
+        .modal-content h3 { color: var(--primary-color); margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-family: var(--font-family); font-size: 1em; }
+        .modal-actions { text-align: left; margin-top: 20px; }
+        .modal-actions button {
+            background-color: var(--primary-color); color: white; border: none;
+            padding: 10px 25px; border-radius: 8px; cursor: pointer; font-size: 1em;
+            font-family: var(--font-family); min-width: 120px; text-align: center;
+        }
+        .modal-actions button:disabled { background-color: #95a5a6; cursor: not-allowed; }
+        .modal-actions button .fas { margin-left: 8px; }
+
+        #loader { text-align: center; padding: 50px; }
+        .spinner {
+            border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color);
+            border-radius: 50%; width: 50px; height: 50px;
+            animation: spin 1s linear infinite; margin: 0 auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .admin-wrapper { flex-direction: column; }
+            .sidebar {
+                width: 100%;
+                position: fixed; top: 0; right: 0;
+                margin-right: -100%; z-index: 2000; height: 100vh;
+                box-shadow: -5px 0 15px rgba(0,0,0,0.2);
+            }
+            .sidebar.active { margin-right: 0; }
+            .main-content { padding: 20px; }
+            .main-header { margin-bottom: 20px; }
+            .main-header h1 { font-size: 1.8em; }
+            .mobile-menu-toggle { display: block; }
+            th, td { padding: 12px 10px; font-size: 0.9em; }
+            .id-cell span { max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="admin-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>HAJIB SOFT</h2>
+                <p>لوحة التحكم</p>
+            </div>
+            <div class="sidebar-actions">
+                <button id="add-subscriber-btn"><i class="fas fa-user-plus"></i> إضافة مشترك جديد</button>
+            </div>
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <h4>إجمالي المشتركين</h4>
+                    <p id="total-subscribers-stat">0</p>
+                </div>
+                <div class="stat-card">
+                    <h4>إجمالي الوجبات المتبقية</h4>
+                    <p id="total-meals-stat">0</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="main-header">
+                <h1>قائمة المشتركين</h1>
+                <button class="mobile-menu-toggle" id="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
+            </header>
+            <div class="table-container" id="table-container">
+                <div id="loader"><div class="spinner"></div><p>جاري تحميل البيانات...</p></div>
+                <table id="subscribers-table" style="display:none;">
+                    <thead>
+                        <tr>
+                            <th>الاسم</th>
+                            <th>رمز الاشتراك</th>
+                            <th>الوجبات المتبقية</th>
+                            <th>رقم الجوال</th>
+                            <th>إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <!-- Rows will be inserted here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Subscriber Modal -->
+    <div class="modal-overlay" id="add-user-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <h3>إضافة مشترك جديد</h3>
+            <form id="add-user-form">
+                <div class="form-group">
+                    <label for="name">اسم العميل</label>
+                    <input type="text" id="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">رقم الجوال</label>
+                    <input type="tel" id="phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="address">العنوان (اختياري)</label>
+                    <input type="text" id="address">
+                </div>
+                <div class="form-group">
+                    <label for="initial-meals">الرصيد المبدئي للوجبات</label>
+                    <input type="number" id="initial-meals" required min="1">
+                </div>
+                <div class="modal-actions">
+                    <button type="submit">إضافة</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Meals Modal -->
+    <div class="modal-overlay" id="add-meals-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <h3 id="add-meals-title">إضافة رصيد إلى</h3>
+            <form id="add-meals-form">
+                <input type="hidden" id="meals-subscriber-id">
+                <div class="form-group">
+                    <label for="meals-to-add">عدد الوجبات المراد إضافتها</label>
+                    <input type="number" id="meals-to-add" required min="1">
+                </div>
+                <div class="modal-actions">
+                    <button type="submit">تأكيد الإضافة</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // !!!!!!   هام: الصق رابط الـ WEB APP الذي نسخته من APPS SCRIPT هنا   !!!!!!
+        const googleWebAppUrl = 'https://script.google.com/macros/s/AKfycbyQrWgr8c27nvo5Ipxbs3jg1OJc-4zxdNtRbE8uX56kvfWILBokNYajE9J3v3uV45w8tA/exec'; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if the URL is still the default placeholder
+            if (googleWebAppUrl === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
+                alert('الرجاء تحديث رابط الـ Web App في ملف admin.html قبل المتابعة.');
+                document.getElementById('loader').innerHTML = '<p style="color:red; font-weight:bold;">خطأ: لم يتم إعداد رابط الواجهة الخلفية (Apps Script). يرجى مراجعة المطور.</p>';
+                return;
+            }
+            
+            const tableBody = document.getElementById('table-body');
+            const loader = document.getElementById('loader');
+            const subscribersTable = document.getElementById('subscribers-table');
+            
+            // --- Modals ---
+            const addUserModal = document.getElementById('add-user-modal');
+            const addMealsModal = document.getElementById('add-meals-modal');
+
+            // --- Buttons ---
+            document.getElementById('add-subscriber-btn').addEventListener('click', () => openModal(addUserModal));
+            
+            // --- Forms ---
+            document.getElementById('add-user-form').addEventListener('submit', handleAddUser);
+            document.getElementById('add-meals-form').addEventListener('submit', handleAddMeals);
+
+            // --- Close Modals Logic ---
+            document.querySelectorAll('.modal-overlay').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) closeModal(modal);
+                });
+                modal.querySelector('.modal-close-btn').addEventListener('click', () => closeModal(modal));
+            });
+
+            // --- Mobile Menu ---
+            const sidebar = document.getElementById('sidebar');
+            document.getElementById('mobile-menu-toggle').addEventListener('click', () => sidebar.classList.toggle('active'));
+
+            // --- Core Functions ---
+            async function fetchAndRenderSubscribers() {
+                loader.style.display = 'block';
+                subscribersTable.style.display = 'none';
+                tableBody.innerHTML = '';
+
+                try {
+                    const response = await fetch(`${googleWebAppUrl}?action=getAllSubscribers`);
+                    const result = await response.json();
+                    if (result.status !== 'success') throw new Error(result.message);
+                    
+                    renderTable(result.data);
+                    updateStats(result.data);
+
+                } catch (error) {
+                    loader.innerHTML = `<p style="color:red;">فشل تحميل البيانات: ${error.message}</p>`;
+                } finally {
+                    loader.style.display = 'none';
+                    subscribersTable.style.display = 'table';
+                }
+            }
+
+            function renderTable(subscribers) {
+                if(subscribers.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا يوجد مشتركين حالياً.</td></tr>';
+                    return;
+                }
+                subscribers.forEach(sub => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${sub.name}</td>
+                        <td class="id-cell">
+                            <button class="copy-btn" title="نسخ الرمز"><i class="fas fa-copy"></i></button>
+                            <span>${sub.id}</span>
+                        </td>
+                        <td><strong>${sub.remainingMeals}</strong></td>
+                        <td>${sub.phone}</td>
+                        <td><button class="action-btn" data-id="${sub.id}" data-name="${sub.name}">إضافة رصيد</button></td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+                tableBody.querySelectorAll('.copy-btn').forEach(btn => btn.addEventListener('click', handleCopyId));
+                tableBody.querySelectorAll('.action-btn').forEach(btn => btn.addEventListener('click', handleOpenAddMealsModal));
+            }
+
+            function updateStats(subscribers) {
+                const totalSubs = subscribers.length;
+                const totalMeals = subscribers.reduce((sum, sub) => sum + Number(sub.remainingMeals), 0);
+                document.getElementById('total-subscribers-stat').textContent = totalSubs;
+                document.getElementById('total-meals-stat').textContent = totalMeals;
+            }
+
+            // --- Event Handlers with Loading State ---
+            async function handleAddUser(e) {
+                e.preventDefault();
+                const form = e.target;
+                const submitButton = form.querySelector('button[type="submit"]');
+                const originalButtonHTML = submitButton.innerHTML;
+                
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإضافة...';
+
+                const payload = {
+                    action: "addNewSubscriber",
+                    name: form.querySelector('#name').value,
+                    phone: form.querySelector('#phone').value,
+                    address: form.querySelector('#address').value,
+                    initialMeals: form.querySelector('#initial-meals').value
+                };
+                
+                try {
+                    await postData(payload, `تمت إضافة المشترك بنجاح!`);
+                    closeModal(addUserModal);
+                    form.reset();
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonHTML;
+                }
+            }
+            
+            async function handleAddMeals(e) {
+                e.preventDefault();
+                const form = e.target;
+                const submitButton = form.querySelector('button[type="submit"]');
+                const originalButtonHTML = submitButton.innerHTML;
+
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحديث...';
+
+                const payload = {
+                    action: "addMeals",
+                    subscriptionId: form.querySelector('#meals-subscriber-id').value,
+                    mealsToAdd: form.querySelector('#meals-to-add').value
+                };
+
+                try {
+                    await postData(payload, 'تم تحديث الرصيد بنجاح!');
+                    closeModal(addMealsModal);
+                    form.reset();
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonHTML;
+                }
+            }
+
+            function handleOpenAddMealsModal(e) {
+                const id = e.target.dataset.id;
+                const name = e.target.dataset.name;
+                document.getElementById('add-meals-title').textContent = `إضافة رصيد إلى ${name}`;
+                document.getElementById('meals-subscriber-id').value = id;
+                openModal(addMealsModal);
+            }
+
+            function handleCopyId(e) {
+                const id = e.currentTarget.nextElementSibling.textContent;
+                navigator.clipboard.writeText(id).then(() => {
+                    alert(`تم نسخ الرمز: ${id}`);
+                });
+            }
+
+            async function postData(payload, successMessage) {
+                try {
+                    const response = await fetch(googleWebAppUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify(payload)
+                    });
+                    alert(successMessage);
+                    fetchAndRenderSubscribers(); // Refresh data
+                } catch (error) {
+                    alert(`حدث خطأ: ${error.message}`);
+                }
+            }
+            
+            // --- Modal Helpers ---
+            function openModal(modal) { modal.style.display = 'flex'; }
+            function closeModal(modal) { modal.style.display = 'none'; }
+
+            // --- Initial Load ---
+            fetchAndRenderSubscribers();
+        });
+    </script>
+</body>
+</html>
